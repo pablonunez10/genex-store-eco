@@ -39,7 +39,7 @@ function Home() {
   useEffect(() => {
     const t = setTimeout(() => {
       if (searchInput !== q) {
-        navigate({ search: (prev) => ({ ...prev, q: searchInput, page: 1 }) });
+        navigate({ search: (prev: SearchParams) => ({ ...prev, q: searchInput, page: 1 }) });
       }
     }, 350);
     return () => clearTimeout(t);
