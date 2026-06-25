@@ -16,6 +16,7 @@ const searchSchema = z.object({
   page: fallback(z.number().int().min(1), 1).default(1),
   q: fallback(z.string(), "").default(""),
 });
+type SearchParams = z.infer<typeof searchSchema>;
 
 export const Route = createFileRoute("/")({
   validateSearch: zodValidator(searchSchema),
@@ -39,7 +40,7 @@ function Home() {
   useEffect(() => {
     const t = setTimeout(() => {
       if (searchInput !== q) {
-        navigate({ search: (prev) => ({ ...prev, q: searchInput, page: 1 }) });
+        navigate({ search: (prev: SearchParams) => ({ ...prev, q: searchInput, page: 1 }) });
       }
     }, 350);
     return () => clearTimeout(t);
@@ -87,9 +88,9 @@ function Home() {
   const error = productsQuery.error || categoriesQuery.error;
 
   const setCat = (newCat: string) =>
-    navigate({ search: (prev) => ({ ...prev, cat: newCat, page: 1 }) });
+    navigate({ search: (prev: SearchParams) => ({ ...prev, cat: newCat, page: 1 }) });
   const setPage = (newPage: number) =>
-    navigate({ search: (prev) => ({ ...prev, page: newPage }) });
+    navigate({ search: (prev: SearchParams) => ({ ...prev, page: newPage }) });
 
   return (
     <div className="min-h-screen bg-background">
