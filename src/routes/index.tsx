@@ -11,6 +11,9 @@ import { ArrowRight, ShieldCheck, Truck, MessageCircle, ChevronLeft, ChevronRigh
 
 const PAGE_SIZE = 12;
 
+const OTROS_IDS = ["684e85ce-139e-4272-8251-b08150768e3a", "35995509-7b9d-48e8-a00d-6d63bbd02fd4"];
+const OTROS_PRIMARY_ID = "684e85ce-139e-4272-8251-b08150768e3a";
+
 const searchSchema = z.object({
   cat: fallback(z.string(), "all").default("all"),
   page: fallback(z.number().int().min(1), 1).default(1),
@@ -73,7 +76,13 @@ function Home() {
         .eq("is_active", true)
         .order("name", { ascending: true })
         .range(from, to);
-      if (cat !== "all") query = query.eq("category_id", cat);
+      if (cat !== "all") {
+        if (OTROS_IDS.includes(cat)) {
+          query = query.in("category_id", OTROS_IDS);
+        } else {
+          query = query.eq("category_id", cat);
+        }
+      }
       if (q.trim()) query = query.or(`name.ilike.%${q.trim()}%,sku.ilike.%${q.trim()}%`);
       const { data, error, count } = await query;
       if (error) throw error;
@@ -203,19 +212,21 @@ function Home() {
           >
             Todos
           </button>
-          {categories.map((c) => (
-            <button
-              key={c.id}
-              onClick={() => setCat(c.id)}
-              className={`shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition ${
-                cat === c.id
-                  ? "border-transparent bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
-                  : "border-border bg-[var(--color-surface)] hover:bg-[var(--color-surface-strong)]"
-              }`}
-            >
-              {c.name}
-            </button>
-          ))}
+          {categories
+            .filter((c) => c.id !== "35995509-7b9d-48e8-a00d-6d63bbd02fd4")
+            .map((c) => (
+              <button
+                key={c.id}
+                onClick={() => setCat(c.id === OTROS_PRIMARY_ID ? OTROS_PRIMARY_ID : c.id)}
+                className={`shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition ${
+                  (OTROS_IDS.includes(cat) && c.id === OTROS_PRIMARY_ID) || (cat === c.id && !OTROS_IDS.includes(cat))
+                    ? "border-transparent bg-(--color-primary) text-(--color-primary-foreground)"
+                    : "border-border bg-(--color-surface) hover:bg-(--color-surface-strong)"
+                }`}
+              >
+                {c.name}
+              </button>
+            ))}
         </div>
 
         {error && (
