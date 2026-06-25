@@ -1,13 +1,24 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { zodValidator, fallback } from "@tanstack/zod-adapter";
+import { z } from "zod";
+import { useState, useEffect } from "react";
 import { inventario, type InventarioCategory, type InventarioProduct } from "@/integrations/inventario/client";
 import { Header } from "@/components/header";
 import { ProductCard } from "@/components/product-card";
 import { STORE } from "@/lib/store-config";
-import { ArrowRight, ShieldCheck, Truck, MessageCircle } from "lucide-react";
+import { ArrowRight, ShieldCheck, Truck, MessageCircle, ChevronLeft, ChevronRight } from "lucide-react";
+
+const PAGE_SIZE = 12;
+
+const searchSchema = z.object({
+  cat: fallback(z.string(), "all").default("all"),
+  page: fallback(z.number().int().min(1), 1).default(1),
+  q: fallback(z.string(), "").default(""),
+});
 
 export const Route = createFileRoute("/")({
+  validateSearch: zodValidator(searchSchema),
   head: () => ({
     meta: [
       { title: `${STORE.name} — Comprar online en Paraguay` },
@@ -20,28 +31,28 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
-  const [search, setSearch] = useState("");
-  const [activeCat, setActiveCat] = useState<string | null>(null);
+  const { cat, page, q } = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const [searchInput, setSearchInput] = useState(q);
 
-  const productsQuery = useQuery({
-    queryKey: ["products"],
-    queryFn: async () => {
-      const { data, error } = await inventario
-        .from("products")
-        .select("*")
-        .eq("is_active", true)
-        .order("name", { ascending: true });
-      if (error) throw error;
-      return (data ?? []) as InventarioProduct[];
-    },
-  });
+  // Debounce search input -> URL
+  useEffect(() => {
+    const t = setTimeout(() => {
+      if (searchInput !== q) {
+        navigate({ search: (prev) => ({ ...prev, q: searchInput, page: 1 }) });
+      }
+    }, 350);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchInput]);
 
   const categoriesQuery = useQuery({
     queryKey: ["categories"],
+    staleTime: 5 * 60_000,
     queryFn: async () => {
       const { data, error } = await inventario
         .from("categories")
-        .select("*")
+        .select("id,name,description,is_active")
         .eq("is_active", true)
         .order("name", { ascending: true });
       if (error) throw error;
@@ -49,27 +60,40 @@ function Home() {
     },
   });
 
-  const categoryMap = useMemo(() => {
-    const m = new Map<string, string>();
-    (categoriesQuery.data ?? []).forEach((c) => m.set(c.id, c.name));
-    return m;
-  }, [categoriesQuery.data]);
+  const productsQuery = useQuery({
+    queryKey: ["products", cat, page, q],
+    placeholderData: keepPreviousData,
+    queryFn: async () => {
+      const from = (page - 1) * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+      let query = inventario
+        .from("products")
+        .select("id,name,sku,description,current_stock,min_stock,purchase_price,sale_price,is_active,category_id,created_at,updated_at", { count: "exact" })
+        .eq("is_active", true)
+        .order("name", { ascending: true })
+        .range(from, to);
+      if (cat !== "all") query = query.eq("category_id", cat);
+      if (q.trim()) query = query.or(`name.ilike.%${q.trim()}%,sku.ilike.%${q.trim()}%`);
+      const { data, error, count } = await query;
+      if (error) throw error;
+      return { items: (data ?? []) as InventarioProduct[], total: count ?? 0 };
+    },
+  });
 
-  const filtered = useMemo(() => {
-    const list = productsQuery.data ?? [];
-    const q = search.trim().toLowerCase();
-    return list.filter((p) => {
-      if (activeCat && p.category_id !== activeCat) return false;
-      if (!q) return true;
-      return p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q);
-    });
-  }, [productsQuery.data, search, activeCat]);
-
+  const total = productsQuery.data?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const categories = categoriesQuery.data ?? [];
+  const categoryName = (id: string) => categories.find((c) => c.id === id)?.name;
   const error = productsQuery.error || categoriesQuery.error;
+
+  const setCat = (newCat: string) =>
+    navigate({ search: (prev) => ({ ...prev, cat: newCat, page: 1 }) });
+  const setPage = (newPage: number) =>
+    navigate({ search: (prev) => ({ ...prev, page: newPage }) });
 
   return (
     <div className="min-h-screen bg-background">
-      <Header onSearch={setSearch} searchValue={search} />
+      <Header onSearch={setSearchInput} searchValue={searchInput} />
 
       {/* Hero */}
       <section className="border-b border-border bg-gradient-to-br from-[var(--color-surface-strong)] via-background to-[var(--color-accent)]">
@@ -145,9 +169,13 @@ function Home() {
       <section id="catalogo" className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="flex flex-wrap items-end justify-between gap-3 pb-6">
           <div>
-            <h2 className="font-display text-2xl font-bold sm:text-3xl">Catalogo</h2>
+            <h2 className="font-display text-2xl font-bold sm:text-3xl">
+              {cat === "all" ? "Catalogo" : categoryName(cat) ?? "Catalogo"}
+            </h2>
             <p className="text-sm text-muted-foreground">
-              {productsQuery.isLoading ? "Cargando productos..." : `${filtered.length} producto(s) disponibles`}
+              {productsQuery.isLoading
+                ? "Cargando productos..."
+                : `${total} producto(s) · pagina ${page} de ${totalPages}`}
             </p>
           </div>
         </div>
@@ -155,41 +183,39 @@ function Home() {
         {/* Mobile search */}
         <div className="mb-4 md:hidden">
           <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
             placeholder="Buscar productos..."
             className="h-11 w-full rounded-full border border-border bg-[var(--color-surface)] px-4 text-sm outline-none focus:border-[var(--color-ring)]"
           />
         </div>
 
-        {/* Category chips */}
-        {(categoriesQuery.data?.length ?? 0) > 0 && (
-          <div className="mb-6 flex flex-wrap gap-2">
+        {/* Category tabs */}
+        <div className="mb-6 -mx-1 flex flex-nowrap gap-2 overflow-x-auto px-1 pb-2 sm:flex-wrap sm:overflow-visible">
+          <button
+            onClick={() => setCat("all")}
+            className={`shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition ${
+              cat === "all"
+                ? "border-transparent bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
+                : "border-border bg-[var(--color-surface)] hover:bg-[var(--color-surface-strong)]"
+            }`}
+          >
+            Todos
+          </button>
+          {categories.map((c) => (
             <button
-              onClick={() => setActiveCat(null)}
-              className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold transition ${
-                activeCat === null
+              key={c.id}
+              onClick={() => setCat(c.id)}
+              className={`shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition ${
+                cat === c.id
                   ? "border-transparent bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
                   : "border-border bg-[var(--color-surface)] hover:bg-[var(--color-surface-strong)]"
               }`}
             >
-              Todos
+              {c.name}
             </button>
-            {(categoriesQuery.data ?? []).map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setActiveCat(cat.id)}
-                className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold transition ${
-                  activeCat === cat.id
-                    ? "border-transparent bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
-                    : "border-border bg-[var(--color-surface)] hover:bg-[var(--color-surface-strong)]"
-                }`}
-              >
-                {cat.name}
-              </button>
-            ))}
-          </div>
-        )}
+          ))}
+        </div>
 
         {error && (
           <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-6 text-sm text-destructive">
@@ -199,20 +225,26 @@ function Home() {
 
         {productsQuery.isLoading ? (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {Array.from({ length: 8 }).map((_, i) => (
+            {Array.from({ length: PAGE_SIZE }).map((_, i) => (
               <div key={i} className="aspect-[3/4] animate-pulse rounded-2xl bg-[var(--color-surface-strong)]" />
             ))}
           </div>
-        ) : filtered.length === 0 ? (
+        ) : (productsQuery.data?.items.length ?? 0) === 0 ? (
           <div className="rounded-2xl border border-border bg-[var(--color-surface)] p-10 text-center text-sm text-muted-foreground">
             No encontramos productos para tu busqueda.
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {filtered.map((p) => (
-              <ProductCard key={p.id} product={p} categoryName={categoryMap.get(p.category_id)} />
-            ))}
-          </div>
+          <>
+            <div className={`grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 ${productsQuery.isFetching ? "opacity-60" : ""}`}>
+              {productsQuery.data!.items.map((p) => (
+                <ProductCard key={p.id} product={p} categoryName={categoryName(p.category_id)} />
+              ))}
+            </div>
+
+            {totalPages > 1 && (
+              <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+            )}
+          </>
         )}
       </section>
 
@@ -226,5 +258,54 @@ function Home() {
         </div>
       </footer>
     </div>
+  );
+}
+
+function Pagination({ page, totalPages, onChange }: { page: number; totalPages: number; onChange: (p: number) => void }) {
+  const pages: (number | "...")[] = [];
+  const push = (n: number | "...") => pages.push(n);
+  const window = 1;
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= page - window && i <= page + window)) {
+      push(i);
+    } else if (pages[pages.length - 1] !== "...") {
+      push("...");
+    }
+  }
+
+  return (
+    <nav className="mt-8 flex items-center justify-center gap-1.5" aria-label="Paginacion">
+      <button
+        onClick={() => onChange(Math.max(1, page - 1))}
+        disabled={page === 1}
+        className="inline-flex h-9 items-center gap-1 rounded-full border border-border bg-[var(--color-surface)] px-3 text-xs font-semibold transition hover:bg-[var(--color-surface-strong)] disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        <ChevronLeft className="size-3.5" /> Anterior
+      </button>
+      {pages.map((p, idx) =>
+        p === "..." ? (
+          <span key={`e-${idx}`} className="px-2 text-xs text-muted-foreground">…</span>
+        ) : (
+          <button
+            key={p}
+            onClick={() => onChange(p)}
+            className={`h-9 min-w-9 rounded-full border px-3 text-xs font-semibold transition ${
+              p === page
+                ? "border-transparent bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
+                : "border-border bg-[var(--color-surface)] hover:bg-[var(--color-surface-strong)]"
+            }`}
+          >
+            {p}
+          </button>
+        ),
+      )}
+      <button
+        onClick={() => onChange(Math.min(totalPages, page + 1))}
+        disabled={page === totalPages}
+        className="inline-flex h-9 items-center gap-1 rounded-full border border-border bg-[var(--color-surface)] px-3 text-xs font-semibold transition hover:bg-[var(--color-surface-strong)] disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        Siguiente <ChevronRight className="size-3.5" />
+      </button>
+    </nav>
   );
 }
