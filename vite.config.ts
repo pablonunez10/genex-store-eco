@@ -14,5 +14,10 @@ export default defineConfig({
   },
   nitro: {
     preset: "cloudflare-pages",
+    cloudflare: {
+      wrangler: {
+        name: "genex-store-eco",
+      },
+    },
   },
 });

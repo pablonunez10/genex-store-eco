@@ -4,6 +4,7 @@ This app builds for Cloudflare Pages through Nitro's `cloudflare-pages` preset.
 
 ## Cloudflare Pages Settings
 
+- Project name: `genex-store-eco`
 - Build command: `bun run build`
 - Build output directory: `dist`
 - Runtime: Pages Functions, generated at `dist/_worker.js`
