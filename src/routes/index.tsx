@@ -88,9 +88,9 @@ function Home() {
   const error = productsQuery.error || categoriesQuery.error;
 
   const setCat = (newCat: string) =>
-    navigate({ search: (prev) => ({ ...prev, cat: newCat, page: 1 }) });
+    navigate({ search: (prev: SearchParams) => ({ ...prev, cat: newCat, page: 1 }) });
   const setPage = (newPage: number) =>
-    navigate({ search: (prev) => ({ ...prev, page: newPage }) });
+    navigate({ search: (prev: SearchParams) => ({ ...prev, page: newPage }) });
 
   return (
     <div className="min-h-screen bg-background">
