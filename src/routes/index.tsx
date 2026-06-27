@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { inventario, type InventarioCategory, type InventarioProduct } from "@/integrations/inventario/client";
 import { Header } from "@/components/header";
 import { ProductCard } from "@/components/product-card";
+import { useProductImages } from "@/lib/product-images";
 import { STORE } from "@/lib/store-config";
 import { ArrowRight, ShieldCheck, Truck, MessageCircle, ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -247,11 +248,8 @@ function Home() {
           </div>
         ) : (
           <>
-            <div className={`grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 ${productsQuery.isFetching ? "opacity-60" : ""}`}>
-              {productsQuery.data!.items.map((p) => (
-                <ProductCard key={p.id} product={p} categoryName={categoryName(p.category_id)} />
-              ))}
-            </div>
+            <ProductGrid items={productsQuery.data!.items} fetching={productsQuery.isFetching} categoryName={categoryName} />
+
 
             {totalPages > 1 && (
               <Pagination page={page} totalPages={totalPages} onChange={setPage} />
