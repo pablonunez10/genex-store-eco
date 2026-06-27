@@ -54,9 +54,13 @@ function ProductPage() {
         ) : (
           <div className="grid gap-10 lg:grid-cols-2">
             <div className="relative flex aspect-square items-center justify-center overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-[var(--color-surface-strong)] to-[var(--color-accent)]">
-              <span className="font-display text-[10rem] font-bold text-[var(--color-ink)]/15">
-                {product.name.charAt(0).toUpperCase()}
-              </span>
+              {imageUrl ? (
+                <img src={imageUrl} alt={product.name} className="h-full w-full object-cover" />
+              ) : (
+                <span className="font-display text-[10rem] font-bold text-[var(--color-ink)]/15">
+                  {product.name.charAt(0).toUpperCase()}
+                </span>
+              )}
             </div>
             <div className="flex flex-col gap-4">
               <div className="text-xs uppercase tracking-widest text-muted-foreground">SKU {product.sku}</div>
