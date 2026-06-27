@@ -4,7 +4,15 @@ import type { InventarioProduct } from "@/integrations/inventario/client";
 import { useCart } from "@/contexts/cart-context";
 import { formatGs } from "@/lib/format";
 
-export function ProductCard({ product, categoryName }: { product: InventarioProduct; categoryName?: string }) {
+export function ProductCard({
+  product,
+  categoryName,
+  imageUrl,
+}: {
+  product: InventarioProduct;
+  categoryName?: string;
+  imageUrl?: string;
+}) {
   const { addItem, setOpen } = useCart();
   const outOfStock = product.current_stock <= 0;
 
@@ -13,13 +21,22 @@ export function ProductCard({ product, categoryName }: { product: InventarioProd
       <Link
         to="/producto/$id"
         params={{ id: product.id }}
-        className="relative flex aspect-square items-center justify-center bg-gradient-to-br from-[var(--color-surface-strong)] to-[var(--color-accent)]"
+        className="relative flex aspect-square items-center justify-center overflow-hidden bg-gradient-to-br from-[var(--color-surface-strong)] to-[var(--color-accent)]"
       >
-        <span className="font-display text-6xl font-bold text-[var(--color-ink)]/15">
-          {product.name.charAt(0).toUpperCase()}
-        </span>
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={product.name}
+            loading="lazy"
+            className="h-full w-full object-cover transition group-hover:scale-105"
+          />
+        ) : (
+          <span className="font-display text-6xl font-bold text-[var(--color-ink)]/15">
+            {product.name.charAt(0).toUpperCase()}
+          </span>
+        )}
         {categoryName && (
-          <span className="absolute left-3 top-3 rounded-full bg-[var(--color-surface)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+          <span className="absolute left-3 top-3 rounded-full bg-[var(--color-surface)]/95 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground backdrop-blur">
             {categoryName}
           </span>
         )}
