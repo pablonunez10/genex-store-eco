@@ -4,6 +4,7 @@ import { inventario, type InventarioProduct } from "@/integrations/inventario/cl
 import { Header } from "@/components/header";
 import { useCart } from "@/contexts/cart-context";
 import { formatGs } from "@/lib/format";
+import { useProductImages } from "@/lib/product-images";
 import { ArrowLeft, Minus, Plus, ShoppingBag, PackageCheck, PackageX } from "lucide-react";
 import { useState } from "react";
 
@@ -25,6 +26,9 @@ function ProductPage() {
       return data as InventarioProduct | null;
     },
   });
+
+  const { data: images } = useProductImages(product?.sku ? [product.sku] : []);
+  const imageUrl = product?.sku ? images?.[product.sku] : undefined;
 
   return (
     <div className="min-h-screen bg-background">
