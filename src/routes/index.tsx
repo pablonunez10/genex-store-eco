@@ -319,3 +319,28 @@ function Pagination({ page, totalPages, onChange }: { page: number; totalPages: 
     </nav>
   );
 }
+
+function ProductGrid({
+  items,
+  fetching,
+  categoryName,
+}: {
+  items: InventarioProduct[];
+  fetching: boolean;
+  categoryName: (id: string) => string | undefined;
+}) {
+  const skus = items.map((p) => p.sku).filter(Boolean);
+  const { data: images } = useProductImages(skus);
+  return (
+    <div className={`grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 ${fetching ? "opacity-60" : ""}`}>
+      {items.map((p) => (
+        <ProductCard
+          key={p.id}
+          product={p}
+          categoryName={categoryName(p.category_id)}
+          imageUrl={images?.[p.sku]}
+        />
+      ))}
+    </div>
+  );
+}
