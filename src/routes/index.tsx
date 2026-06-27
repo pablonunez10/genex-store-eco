@@ -3,11 +3,25 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { useState, useEffect } from "react";
-import { inventario, type InventarioCategory, type InventarioProduct } from "@/integrations/inventario/client";
+import {
+  inventario,
+  type InventarioCategory,
+  type InventarioProduct,
+} from "@/integrations/inventario/client";
 import { Header } from "@/components/header";
 import { ProductCard } from "@/components/product-card";
 import { STORE } from "@/lib/store-config";
-import { ArrowRight, ShieldCheck, Truck, MessageCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { GenexLogo } from "@/components/genex-logo";
+import {
+  ArrowRight,
+  ShieldCheck,
+  Truck,
+  MessageCircle,
+  ChevronLeft,
+  ChevronRight,
+  Instagram,
+  Sparkles,
+} from "lucide-react";
 
 const PAGE_SIZE = 12;
 
@@ -26,7 +40,10 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: `${STORE.name} — Comprar online en Paraguay` },
-      { name: "description", content: `Catalogo de ${STORE.name}: accesorios, vidrios, perfumes y mas. Pedidos online con pago por transferencia.` },
+      {
+        name: "description",
+        content: `Catalogo de ${STORE.name}: accesorios, vidrios, perfumes y mas. Pedidos online con pago por transferencia.`,
+      },
       { property: "og:title", content: STORE.name },
       { property: "og:description", content: STORE.tagline },
     ],
@@ -72,7 +89,10 @@ function Home() {
       const to = from + PAGE_SIZE - 1;
       let query = inventario
         .from("products")
-        .select("id,name,sku,description,current_stock,min_stock,purchase_price,sale_price,is_active,category_id,created_at,updated_at", { count: "exact" })
+        .select(
+          "id,name,sku,description,current_stock,min_stock,purchase_price,sale_price,is_active,category_id,created_at,updated_at",
+          { count: "exact" },
+        )
         .eq("is_active", true)
         .order("name", { ascending: true })
         .range(from, to);
@@ -102,51 +122,59 @@ function Home() {
     navigate({ search: (prev: SearchParams) => ({ ...prev, page: newPage }) });
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background text-foreground">
       <Header onSearch={setSearchInput} searchValue={searchInput} />
 
-      {/* Hero */}
-      <section className="border-b border-border bg-gradient-to-br from-[var(--color-surface-strong)] via-background to-[var(--color-accent)]">
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-14 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-20">
-          <div className="flex flex-col justify-center gap-5">
-            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-border bg-[var(--color-surface)] px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-              <span className="size-1.5 rounded-full bg-[var(--color-brand)]" />
-              Tienda online en Paraguay
+      <section className="relative overflow-hidden border-b-2 border-foreground ">
+        <div className="absolute inset-x-0 top-0 h-8 border-b-2 border-foreground bg-[repeating-linear-gradient(90deg,var(--color-foreground)_0_18px,transparent_18px_36px)] opacity-[0.08]" />
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 pb-12 pt-16 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:pb-16 lg:pt-20">
+          <div className="flex flex-col justify-center gap-6">
+            <span className="inline-flex w-fit items-center gap-2 rounded-[0.35rem] border-2 border-foreground  px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.25em] shadow-[4px_4px_0_var(--color-foreground)]">
+              Nuevo online
             </span>
-            <h1 className="font-display text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-              Tecnologia y accesorios al alcance de un clic.
+            <h1 className="max-w-3xl font-display text-5xl font-black uppercase leading-[0.9] tracking-normal sm:text-7xl lg:text-8xl">
+              GENEX Store
             </h1>
-            <p className="max-w-lg text-base text-muted-foreground">
-              Pedidos en guaranies, pago por transferencia y envio de comprobante en segundos.
-              Stock en tiempo real desde nuestro inventario.
+            <p className="max-w-xl text-base font-medium leading-relaxed text-muted-foreground sm:text-lg">
+              Tecnologia, accesorios y finds para uso diario con estetica limpia, stock real y
+              atencion directa por WhatsApp.
             </p>
             <div className="flex flex-wrap gap-3">
               <a
                 href="#catalogo"
-                className="inline-flex items-center gap-2 rounded-full bg-[var(--color-primary)] px-5 py-3 text-sm font-semibold text-[var(--color-primary-foreground)] transition hover:opacity-90"
+                className="inline-flex h-12 items-center gap-2 rounded-[0.45rem] border-2 border-foreground bg-foreground px-5 text-sm font-black uppercase text-background transition hover:-translate-y-0.5 hover:shadow-[5px_5px_0_var(--color-brand)]"
               >
                 Ver catalogo <ArrowRight className="size-4" />
               </a>
               <a
-                href={`https://wa.me/${STORE.whatsapp}`}
+                href="https://www.instagram.com/genexstore/"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-[var(--color-surface)] px-5 py-3 text-sm font-semibold transition hover:bg-[var(--color-surface-strong)]"
+                className="inline-flex h-12 items-center gap-2 rounded-[0.45rem] border-2 border-foreground  px-5 text-sm font-black uppercase transition hover:-translate-y-0.5 hover:shadow-[5px_5px_0_var(--color-brand)]"
               >
-                <MessageCircle className="size-4" /> WhatsApp
+                <Instagram className="size-4" /> Instagram
               </a>
             </div>
           </div>
-          <div className="relative hidden items-center justify-center lg:flex">
-            <div className="relative h-72 w-72 rounded-3xl border border-border bg-[var(--color-surface)] p-8 shadow-xl">
-              <div className="absolute -right-6 -top-6 h-32 w-32 rounded-2xl bg-[var(--color-brand)]" />
-              <div className="relative flex h-full flex-col justify-between">
-                <div>
-                  <div className="text-xs uppercase tracking-widest text-muted-foreground">Destacado</div>
-                  <div className="mt-2 font-display text-2xl font-bold">Stock real, precio claro.</div>
+          <div className="relative overflow-hidden border-2 border-foreground bg-foreground text-background shadow-[10px_10px_0_var(--color-brand)]">
+            <div className="absolute inset-0 opacity-20 " />
+            <div className="relative flex h-full flex-col justify-between p-6 sm:p-8">
+              <div className="flex justify-between gap-4">
+                <span className="text-xs font-black uppercase tracking-[0.35em] text-background/65">
+                  Online store
+                </span>
+                <Sparkles className="size-5 " />
+              </div>
+              <div className="space-y-5">
+                <GenexLogo compact />
+                <div className="font-display text-6xl font-black uppercase leading-[0.82] tracking-normal sm:text-8xl">
+                  GEN<span className=""></span>EX
                 </div>
-                <div className="text-sm text-muted-foreground">
-                  Nuestro catalogo se sincroniza con el inventario interno: nunca te ofrecemos lo que no tenemos.
+                <div className="flex items-end justify-between gap-4 border-t-2 border-background pt-4">
+                  <p className="max-w-xs text-sm font-semibold leading-relaxed text-background/70">
+                    Catalogo directo, pagos por transferencia y confirmacion simple.
+                  </p>
+                  <span className="font-display text-4xl font-black">PY</span>
                 </div>
               </div>
             </div>
@@ -154,35 +182,51 @@ function Home() {
         </div>
       </section>
 
-      {/* Trust strip */}
-      <section className="border-b border-border bg-[var(--color-surface)]">
-        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 py-6 sm:grid-cols-3 sm:px-6 lg:px-8">
+      <section className="border-b-2 border-foreground ">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-0 px-4 sm:grid-cols-3 sm:px-6 lg:px-8">
           {[
-            { icon: ShieldCheck, title: "Pago seguro", desc: "Transferencia o alias, comprobante adjunto." },
-            { icon: Truck, title: "Coordinamos entrega", desc: "Te contactamos al confirmar el pago." },
-            { icon: MessageCircle, title: "Atencion personal", desc: "Resolvemos por WhatsApp en el dia." },
+            {
+              icon: ShieldCheck,
+              title: "Pago seguro",
+              desc: "Transferencia o alias, comprobante adjunto.",
+            },
+            {
+              icon: Truck,
+              title: "Coordinamos entrega",
+              desc: "Te contactamos al confirmar el pago.",
+            },
+            {
+              icon: MessageCircle,
+              title: "Atencion personal",
+              desc: "Resolvemos por WhatsApp en el dia.",
+            },
           ].map((f) => (
-            <div key={f.title} className="flex items-start gap-3">
-              <div className="rounded-lg bg-[var(--color-surface-strong)] p-2.5">
+            <div
+              key={f.title}
+              className="flex items-start gap-3 border-foreground py-5 sm:border-r sm:px-5 sm:first:border-l"
+            >
+              <div className="rounded-[0.35rem] border-2 border-foreground bg-background p-2.5">
                 <f.icon className="size-5" />
               </div>
               <div>
-                <div className="text-sm font-semibold">{f.title}</div>
-                <div className="text-xs text-muted-foreground">{f.desc}</div>
+                <div className="text-sm font-black uppercase">{f.title}</div>
+                <div className="text-xs font-medium text-foreground/70">{f.desc}</div>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Catalog */}
-      <section id="catalogo" className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <section id="catalogo" className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
         <div className="flex flex-wrap items-end justify-between gap-3 pb-6">
           <div>
-            <h2 className="font-display text-2xl font-bold sm:text-3xl">
-              {cat === "all" ? "Catalogo" : categoryName(cat) ?? "Catalogo"}
+            <p className="mb-2 text-xs font-black uppercase tracking-[0.3em] text-muted-foreground">
+              Shop the feed
+            </p>
+            <h2 className="font-display text-3xl font-black uppercase tracking-normal sm:text-5xl">
+              {cat === "all" ? "Catalogo" : (categoryName(cat) ?? "Catalogo")}
             </h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="mt-1 text-sm font-medium text-muted-foreground">
               {productsQuery.isLoading
                 ? "Cargando productos..."
                 : `${total} producto(s) · pagina ${page} de ${totalPages}`}
@@ -196,18 +240,17 @@ function Home() {
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder="Buscar productos..."
-            className="h-11 w-full rounded-full border border-border bg-[var(--color-surface)] px-4 text-sm outline-none focus:border-[var(--color-ring)]"
+            className="h-12 w-full rounded-[0.45rem] border-2 border-foreground  px-4 text-sm font-semibold outline-none focus:shadow-[4px_4px_0_var(--color-brand)]"
           />
         </div>
 
-        {/* Category tabs */}
         <div className="mb-6 -mx-1 flex flex-nowrap gap-2 overflow-x-auto px-1 pb-2 sm:flex-wrap sm:overflow-visible">
           <button
             onClick={() => setCat("all")}
-            className={`shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition ${
+            className={`shrink-0 rounded-[0.35rem] border-2 px-3.5 py-2 text-xs font-black uppercase transition ${
               cat === "all"
-                ? "border-transparent bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
-                : "border-border bg-[var(--color-surface)] hover:bg-[var(--color-surface-strong)]"
+                ? "border-foreground bg-foreground text-background"
+                : "border-foreground "
             }`}
           >
             Todos
@@ -218,10 +261,11 @@ function Home() {
               <button
                 key={c.id}
                 onClick={() => setCat(c.id === OTROS_PRIMARY_ID ? OTROS_PRIMARY_ID : c.id)}
-                className={`shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition ${
-                  (OTROS_IDS.includes(cat) && c.id === OTROS_PRIMARY_ID) || (cat === c.id && !OTROS_IDS.includes(cat))
-                    ? "border-transparent bg-(--color-primary) text-(--color-primary-foreground)"
-                    : "border-border bg-(--color-surface) hover:bg-(--color-surface-strong)"
+                className={`shrink-0 rounded-[0.35rem] border-2 px-3.5 py-2 text-xs font-black uppercase transition ${
+                  (OTROS_IDS.includes(cat) && c.id === OTROS_PRIMARY_ID) ||
+                  (cat === c.id && !OTROS_IDS.includes(cat))
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-foreground "
                 }`}
               >
                 {c.name}
@@ -230,24 +274,27 @@ function Home() {
         </div>
 
         {error && (
-          <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-6 text-sm text-destructive">
-            No pudimos cargar los productos. Verifica que la base de Inventario Amigo permita lectura publica para visitantes.
+          <div className="border-2 border-destructive bg-destructive/5 p-6 text-sm font-semibold text-destructive">
+            No pudimos cargar los productos. Verifica que la base de Inventario Amigo permita
+            lectura publica para visitantes.
           </div>
         )}
 
         {productsQuery.isLoading ? (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {Array.from({ length: PAGE_SIZE }).map((_, i) => (
-              <div key={i} className="aspect-[3/4] animate-pulse rounded-2xl bg-[var(--color-surface-strong)]" />
+              <div key={i} className="animate-pulse border-2 border-foreground " />
             ))}
           </div>
         ) : (productsQuery.data?.items.length ?? 0) === 0 ? (
-          <div className="rounded-2xl border border-border bg-[var(--color-surface)] p-10 text-center text-sm text-muted-foreground">
+          <div className="border-2 border-foreground p-10 text-center text-sm font-semibold text-muted-foreground">
             No encontramos productos para tu busqueda.
           </div>
         ) : (
           <>
-            <div className={`grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 ${productsQuery.isFetching ? "opacity-60" : ""}`}>
+            <div
+              className={`grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 ${productsQuery.isFetching ? "opacity-60" : ""}`}
+            >
               {productsQuery.data!.items.map((p) => (
                 <ProductCard key={p.id} product={p} categoryName={categoryName(p.category_id)} />
               ))}
@@ -260,12 +307,21 @@ function Home() {
         )}
       </section>
 
-      <footer className="border-t border-border bg-[var(--color-surface)] py-10">
-        <div className="mx-auto max-w-7xl px-4 text-center text-xs text-muted-foreground sm:px-6 lg:px-8">
-          <div className="font-display text-base font-bold text-foreground">{STORE.name}</div>
-          <div className="mt-1">{STORE.tagline} · WhatsApp +{STORE.whatsapp}</div>
+      <footer className="border-t-2 border-foreground bg-foreground py-10 text-background">
+        <div className="mx-auto max-w-7xl px-4 text-center text-xs font-semibold text-background/70 sm:px-6 lg:px-8">
+          <div className="font-display text-2xl font-black uppercase tracking-normal text-background">
+            GENEX Store
+          </div>
+          <div className="mt-1">
+            {STORE.tagline} · WhatsApp +{STORE.whatsapp}
+          </div>
           <div className="mt-3">
-            <Link to="/checkout" className="underline-offset-2 hover:underline">Finalizar compra</Link>
+            <Link
+              to="/checkout"
+              className="font-black uppercase underline-offset-2 hover:underline"
+            >
+              Finalizar compra
+            </Link>
           </div>
         </div>
       </footer>
@@ -273,7 +329,15 @@ function Home() {
   );
 }
 
-function Pagination({ page, totalPages, onChange }: { page: number; totalPages: number; onChange: (p: number) => void }) {
+function Pagination({
+  page,
+  totalPages,
+  onChange,
+}: {
+  page: number;
+  totalPages: number;
+  onChange: (p: number) => void;
+}) {
   const pages: (number | "...")[] = [];
   const push = (n: number | "...") => pages.push(n);
   const window = 1;
@@ -286,25 +350,28 @@ function Pagination({ page, totalPages, onChange }: { page: number; totalPages: 
   }
 
   return (
-    <nav className="mt-8 flex items-center justify-center gap-1.5" aria-label="Paginacion">
+    <nav
+      className="mt-8 flex flex-wrap items-center justify-center gap-1.5"
+      aria-label="Paginacion"
+    >
       <button
         onClick={() => onChange(Math.max(1, page - 1))}
         disabled={page === 1}
-        className="inline-flex h-9 items-center gap-1 rounded-full border border-border bg-[var(--color-surface)] px-3 text-xs font-semibold transition hover:bg-[var(--color-surface-strong)] disabled:cursor-not-allowed disabled:opacity-50"
+        className="inline-flex h-10 items-center gap-1 rounded-[0.35rem] border-2 border-foreground px-3 text-xs font-black uppercase transition  disabled:cursor-not-allowed disabled:opacity-50"
       >
         <ChevronLeft className="size-3.5" /> Anterior
       </button>
       {pages.map((p, idx) =>
         p === "..." ? (
-          <span key={`e-${idx}`} className="px-2 text-xs text-muted-foreground">…</span>
+          <span key={`e-${idx}`} className="px-2 text-xs text-muted-foreground">
+            …
+          </span>
         ) : (
           <button
             key={p}
             onClick={() => onChange(p)}
-            className={`h-9 min-w-9 rounded-full border px-3 text-xs font-semibold transition ${
-              p === page
-                ? "border-transparent bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
-                : "border-border bg-[var(--color-surface)] hover:bg-[var(--color-surface-strong)]"
+            className={`h-10 min-w-10 rounded-[0.35rem] border-2 px-3 text-xs font-black transition ${
+              p === page ? "border-foreground bg-foreground text-background" : "border-foreground "
             }`}
           >
             {p}
@@ -314,7 +381,7 @@ function Pagination({ page, totalPages, onChange }: { page: number; totalPages: 
       <button
         onClick={() => onChange(Math.min(totalPages, page + 1))}
         disabled={page === totalPages}
-        className="inline-flex h-9 items-center gap-1 rounded-full border border-border bg-[var(--color-surface)] px-3 text-xs font-semibold transition hover:bg-[var(--color-surface-strong)] disabled:cursor-not-allowed disabled:opacity-50"
+        className="inline-flex h-10 items-center gap-1 rounded-[0.35rem] border-2 border-foreground disabled:cursor-not-allowed disabled:opacity-50"
       >
         Siguiente <ChevronRight className="size-3.5" />
       </button>

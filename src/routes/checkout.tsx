@@ -76,7 +76,8 @@ function Checkout() {
         contentType: file.type || "application/octet-stream",
         upsert: false,
       });
-      if (uploadRes.error) throw new Error("No pudimos subir el comprobante: " + uploadRes.error.message);
+      if (uploadRes.error)
+        throw new Error("No pudimos subir el comprobante: " + uploadRes.error.message);
 
       const { data: order, error: orderErr } = await supabase
         .from("orders")
@@ -100,12 +101,13 @@ function Checkout() {
         })
         .select("order_number")
         .single();
-      if (orderErr || !order) throw new Error("No pudimos registrar el pedido: " + (orderErr?.message ?? ""));
+      if (orderErr || !order)
+        throw new Error("No pudimos registrar el pedido: " + (orderErr?.message ?? ""));
 
       clear();
       navigate({ to: "/gracias/$orderNumber", params: { orderNumber: order.order_number } });
-    } catch (err: any) {
-      setErrorMsg(err?.message ?? "Error al procesar tu pedido.");
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : "Error al procesar tu pedido.");
     } finally {
       setSubmitting(false);
     }
@@ -115,16 +117,26 @@ function Checkout() {
     <div className="min-h-screen bg-background">
       <Header />
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-        <Link to="/" className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+        <Link
+          to="/"
+          className="mb-6 inline-flex items-center gap-1.5 text-sm font-black uppercase text-muted-foreground hover:text-foreground"
+        >
           <ArrowLeft className="size-4" /> Seguir comprando
         </Link>
-        <h1 className="font-display text-3xl font-bold sm:text-4xl">Finalizar pedido</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Transfieri al banco, adjunta el comprobante y nosotros confirmamos.</p>
+        <h1 className="font-display text-4xl font-black uppercase tracking-normal sm:text-6xl">
+          Finalizar pedido
+        </h1>
+        <p className="mt-1 text-sm font-medium text-muted-foreground">
+          Transferi al banco, adjunta el comprobante y nosotros confirmamos.
+        </p>
 
         {items.length === 0 ? (
-          <div className="mt-10 rounded-2xl border border-border bg-[var(--color-surface)] p-10 text-center">
-            <p className="text-sm text-muted-foreground">Tu carrito esta vacio.</p>
-            <Link to="/" className="mt-4 inline-flex rounded-full bg-[var(--color-primary)] px-5 py-2.5 text-sm font-semibold text-[var(--color-primary-foreground)]">
+          <div className="mt-10 border-2 border-foreground bg-[var(--color-surface)] p-10 text-center">
+            <p className="text-sm font-semibold text-muted-foreground">Tu carrito esta vacio.</p>
+            <Link
+              to="/"
+              className="mt-4 inline-flex rounded-[0.45rem] border-2 border-foreground bg-foreground px-5 py-2.5 text-sm font-black uppercase text-background hover:bg-[var(--color-brand)] hover:text-foreground"
+            >
               Ver catalogo
             </Link>
           </div>
@@ -133,45 +145,73 @@ function Checkout() {
             {/* Left: form */}
             <div className="space-y-6">
               {/* Datos */}
-              <section className="rounded-2xl border border-border bg-[var(--color-surface)] p-6">
-                <h2 className="font-display text-lg font-bold">1. Tus datos</h2>
+              <section className="border-2 border-foreground bg-[var(--color-surface)] p-6">
+                <h2 className="font-display text-xl font-black uppercase tracking-normal">
+                  1. Tus datos
+                </h2>
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
                   <Field label="Nombre completo *" name="name" required maxLength={120} />
                   <Field label="Email *" name="email" type="email" required maxLength={160} />
                   <Field label="Telefono / WhatsApp *" name="phone" required maxLength={40} />
                   <Field label="Direccion (opcional)" name="address" maxLength={300} />
                   <div className="sm:col-span-2">
-                    <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Notas (opcional)</label>
+                    <label className="text-xs font-black uppercase tracking-[0.22em] text-muted-foreground">
+                      Notas (opcional)
+                    </label>
                     <textarea name="notes" maxLength={500} rows={3} className={inputCls} />
                   </div>
                 </div>
               </section>
 
               {/* Pago */}
-              <section className="rounded-2xl border border-border bg-[var(--color-surface)] p-6">
-                <h2 className="font-display text-lg font-bold">2. Elegi a donde transferir</h2>
+              <section className="border-2 border-foreground bg-[var(--color-surface)] p-6">
+                <h2 className="font-display text-xl font-black uppercase tracking-normal">
+                  2. Elegi a donde transferir
+                </h2>
                 <div className="mt-4 space-y-3">
                   {BANK_ACCOUNTS.map((acc, idx) => {
                     const id = idx === 0 ? "continental" : "tufinancia";
                     return (
-                      <label key={acc.number} className="flex cursor-pointer items-start gap-3 rounded-xl border border-border p-4 transition has-[:checked]:border-[var(--color-primary)] has-[:checked]:bg-[var(--color-surface-strong)]">
-                        <input type="radio" name="paymentMethod" value={id} defaultChecked={idx === 0} className="mt-1 size-4 accent-[var(--color-primary)]" />
+                      <label
+                        key={acc.number}
+                        className="flex cursor-pointer items-start gap-3 border-2 border-foreground p-4 transition has-[:checked]:bg-[var(--color-brand)]"
+                      >
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value={id}
+                          defaultChecked={idx === 0}
+                          className="mt-1 size-4 accent-[var(--color-primary)]"
+                        />
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 font-semibold">
+                          <div className="flex items-center gap-2 font-black uppercase">
                             <Building2 className="size-4" /> {acc.entity}
                           </div>
-                          <div className="mt-2 grid gap-1 text-sm text-muted-foreground sm:grid-cols-2">
+                          <div className="mt-2 grid gap-1 text-sm font-medium text-muted-foreground sm:grid-cols-2">
                             <div>
-                              <div className="text-[11px] uppercase tracking-widest">Cuenta</div>
+                              <div className="text-[11px] font-black uppercase tracking-[0.22em]">
+                                Cuenta
+                              </div>
                               <div className="flex items-center gap-2 font-mono text-foreground">
                                 {acc.number}
-                                <button type="button" onClick={() => copy(acc.number)} className="rounded p-1 hover:bg-[var(--color-surface)]" aria-label="Copiar">
-                                  {copied === acc.number ? <CheckCircle2 className="size-3.5 text-green-600" /> : <Copy className="size-3.5" />}
+                                <button
+                                  type="button"
+                                  onClick={() => copy(acc.number)}
+                                  className="rounded-[0.25rem] p-1 hover:bg-[var(--color-surface)]"
+                                  aria-label="Copiar"
+                                >
+                                  {copied === acc.number ? (
+                                    <CheckCircle2 className="size-3.5 text-foreground" />
+                                  ) : (
+                                    <Copy className="size-3.5" />
+                                  )}
                                 </button>
                               </div>
                             </div>
                             <div>
-                              <div className="text-[11px] uppercase tracking-widest">Titular</div>
+                              <div className="text-[11px] font-black uppercase tracking-[0.22em]">
+                                Titular
+                              </div>
                               <div className="text-foreground">{acc.holder}</div>
                               <div>{acc.document}</div>
                             </div>
@@ -181,20 +221,41 @@ function Checkout() {
                     );
                   })}
 
-                  <div className="rounded-xl border border-dashed border-border p-4">
-                    <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Cuentas rapidas (Alias)</div>
+                  <div className="border-2 border-dashed border-foreground p-4">
+                    <div className="text-xs font-black uppercase tracking-[0.22em] text-muted-foreground">
+                      Cuentas rapidas (Alias)
+                    </div>
                     <div className="mt-2 grid gap-3 sm:grid-cols-2">
                       {QUICK_ALIAS.map((a, idx) => {
                         const id = idx === 0 ? "alias-telefono" : "alias-cedula";
                         return (
-                          <label key={a.value} className="flex cursor-pointer items-start gap-2 rounded-lg border border-border bg-[var(--color-surface)] p-3 transition has-[:checked]:border-[var(--color-primary)]">
-                            <input type="radio" name="paymentMethod" value={id} className="mt-1 size-4 accent-[var(--color-primary)]" />
+                          <label
+                            key={a.value}
+                            className="flex cursor-pointer items-start gap-2 border-2 border-foreground bg-[var(--color-surface)] p-3 transition has-[:checked]:bg-[var(--color-brand)]"
+                          >
+                            <input
+                              type="radio"
+                              name="paymentMethod"
+                              value={id}
+                              className="mt-1 size-4 accent-[var(--color-primary)]"
+                            />
                             <div className="flex-1">
-                              <div className="text-xs uppercase tracking-widest text-muted-foreground">{a.label}</div>
-                              <div className="flex items-center gap-2 font-mono text-sm font-semibold">
+                              <div className="text-xs font-black uppercase tracking-[0.22em] text-muted-foreground">
+                                {a.label}
+                              </div>
+                              <div className="flex items-center gap-2 font-mono text-sm font-black">
                                 {a.value}
-                                <button type="button" onClick={() => copy(a.value)} className="rounded p-1 hover:bg-[var(--color-surface-strong)]" aria-label="Copiar">
-                                  {copied === a.value ? <CheckCircle2 className="size-3.5 text-green-600" /> : <Copy className="size-3.5" />}
+                                <button
+                                  type="button"
+                                  onClick={() => copy(a.value)}
+                                  className="rounded-[0.25rem] p-1 hover:bg-[var(--color-surface-strong)]"
+                                  aria-label="Copiar"
+                                >
+                                  {copied === a.value ? (
+                                    <CheckCircle2 className="size-3.5 text-foreground" />
+                                  ) : (
+                                    <Copy className="size-3.5" />
+                                  )}
                                 </button>
                               </div>
                             </div>
@@ -207,19 +268,25 @@ function Checkout() {
               </section>
 
               {/* Comprobante */}
-              <section className="rounded-2xl border border-border bg-[var(--color-surface)] p-6">
-                <h2 className="font-display text-lg font-bold">3. Adjunta el comprobante</h2>
-                <p className="mt-1 text-sm text-muted-foreground">Subi la captura o PDF de la transferencia (hasta 8 MB).</p>
-                <label className="mt-4 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border p-8 text-center transition hover:border-[var(--color-primary)] hover:bg-[var(--color-surface-strong)]">
+              <section className="border-2 border-foreground bg-[var(--color-surface)] p-6">
+                <h2 className="font-display text-xl font-black uppercase tracking-normal">
+                  3. Adjunta el comprobante
+                </h2>
+                <p className="mt-1 text-sm font-medium text-muted-foreground">
+                  Subi la captura o PDF de la transferencia (hasta 8 MB).
+                </p>
+                <label className="mt-4 flex cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed border-foreground p-8 text-center transition hover:bg-[var(--color-brand)]">
                   <Upload className="size-6 text-muted-foreground" />
                   {file ? (
                     <div className="text-sm">
-                      <div className="font-semibold">{file.name}</div>
-                      <div className="text-xs text-muted-foreground">{(file.size / 1024).toFixed(1)} KB · Hace clic para cambiar</div>
+                      <div className="font-black">{file.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {(file.size / 1024).toFixed(1)} KB · Hace clic para cambiar
+                      </div>
                     </div>
                   ) : (
                     <div className="text-sm">
-                      <div className="font-semibold">Subir comprobante</div>
+                      <div className="font-black uppercase">Subir comprobante</div>
                       <div className="text-xs text-muted-foreground">JPG, PNG o PDF</div>
                     </div>
                   )}
@@ -235,32 +302,38 @@ function Checkout() {
 
             {/* Right: summary */}
             <aside className="lg:sticky lg:top-20 lg:self-start">
-              <div className="rounded-2xl border border-border bg-[var(--color-surface)] p-6">
-                <h2 className="font-display text-lg font-bold">Resumen</h2>
-                <ul className="mt-4 divide-y divide-border">
+              <div className="border-2 border-foreground bg-[var(--color-surface)] p-6 shadow-[8px_8px_0_var(--color-brand)]">
+                <h2 className="font-display text-xl font-black uppercase tracking-normal">
+                  Resumen
+                </h2>
+                <ul className="mt-4 divide-y-2 divide-foreground">
                   {items.map((i) => (
                     <li key={i.id} className="flex items-start justify-between gap-3 py-3 text-sm">
                       <div>
-                        <div className="font-semibold leading-snug">{i.name}</div>
-                        <div className="text-xs text-muted-foreground">{i.quantity} × {formatGs(i.price)}</div>
+                        <div className="font-black uppercase leading-snug">{i.name}</div>
+                        <div className="text-xs font-semibold text-muted-foreground">
+                          {i.quantity} x {formatGs(i.price)}
+                        </div>
                       </div>
-                      <div className="font-semibold">{formatGs(i.price * i.quantity)}</div>
+                      <div className="font-black">{formatGs(i.price * i.quantity)}</div>
                     </li>
                   ))}
                 </ul>
-                <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
-                  <span className="text-sm text-muted-foreground">Total</span>
-                  <span className="font-display text-2xl font-bold">{formatGs(totalAmount)}</span>
+                <div className="mt-4 flex items-center justify-between border-t-2 border-foreground pt-4">
+                  <span className="text-sm font-black uppercase text-muted-foreground">Total</span>
+                  <span className="font-display text-2xl font-black">{formatGs(totalAmount)}</span>
                 </div>
 
                 {errorMsg && (
-                  <div className="mt-4 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-xs text-destructive">{errorMsg}</div>
+                  <div className="mt-4 border-2 border-destructive bg-destructive/5 p-3 text-xs font-semibold text-destructive">
+                    {errorMsg}
+                  </div>
                 )}
 
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="mt-4 w-full rounded-full bg-[var(--color-primary)] py-3 text-sm font-semibold text-[var(--color-primary-foreground)] transition hover:opacity-90 disabled:opacity-60"
+                  className="mt-4 w-full rounded-[0.45rem] border-2 border-foreground bg-foreground py-3 text-sm font-black uppercase text-background transition hover:bg-[var(--color-brand)] hover:text-foreground disabled:opacity-60"
                 >
                   {submitting ? "Enviando pedido..." : "Confirmar pedido"}
                 </button>
@@ -271,7 +344,7 @@ function Checkout() {
                   )}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-2 flex w-full items-center justify-center gap-2 rounded-full border border-border py-3 text-sm font-semibold transition hover:bg-[var(--color-surface-strong)]"
+                  className="mt-2 flex w-full items-center justify-center gap-2 rounded-[0.45rem] border-2 border-foreground py-3 text-sm font-black uppercase transition hover:bg-[var(--color-brand)]"
                 >
                   <MessageCircle className="size-4" /> Pedir por WhatsApp
                 </a>
@@ -285,13 +358,15 @@ function Checkout() {
 }
 
 const inputCls =
-  "mt-1 w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none transition focus:border-[var(--color-ring)] focus:ring-2 focus:ring-[var(--color-ring)]/30";
+  "mt-1 w-full rounded-[0.35rem] border-2 border-foreground bg-background px-3 py-2.5 text-sm font-semibold outline-none transition focus:shadow-[4px_4px_0_var(--color-brand)]";
 
 function Field(props: React.InputHTMLAttributes<HTMLInputElement> & { label: string }) {
   const { label, ...rest } = props;
   return (
     <div>
-      <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{label}</label>
+      <label className="text-xs font-black uppercase tracking-[0.22em] text-muted-foreground">
+        {label}
+      </label>
       <input {...rest} className={inputCls} />
     </div>
   );

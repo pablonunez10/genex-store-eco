@@ -6,8 +6,7 @@
 
 /*
  * Genex Store design system.
- * Brand: dark warm-neutral background, bold cream surface,
- * electric lime accent for a tech-store feel without purple.
+ * Brand: pure monochrome, hard borders, strong contrast.
  */
 
 @theme inline {
@@ -48,40 +47,37 @@
 }
 
 :root {
-  --radius: 0.75rem;
+  --radius: 0.45rem;
 
-  /* Warm light surface */
-  --background: oklch(0.985 0.005 95);
-  --foreground: oklch(0.18 0.02 70);
+  --background: oklch(0.99 0 0);
+  --foreground: oklch(0.09 0 0);
 
-  --ink: oklch(0.13 0.02 70);
+  --ink: oklch(0.09 0 0);
   --surface: oklch(1 0 0);
-  --surface-strong: oklch(0.96 0.008 90);
+  --surface-strong: oklch(0.955 0 0);
 
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.02 70);
+  --card-foreground: oklch(0.09 0 0);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.02 70);
+  --popover-foreground: oklch(0.09 0 0);
 
-  /* Primary = ink */
-  --primary: oklch(0.18 0.02 70);
-  --primary-foreground: oklch(0.985 0.005 95);
+  --primary: oklch(0.09 0 0);
+  --primary-foreground: oklch(0.99 0 0);
 
-  /* Brand accent — electric lime/yellow */
-  --brand: oklch(0.86 0.19 110);
-  --brand-foreground: oklch(0.18 0.02 70);
+  --brand: oklch(0.92 0 0);
+  --brand-foreground: oklch(0.09 0 0);
 
-  --secondary: oklch(0.94 0.01 90);
-  --secondary-foreground: oklch(0.2 0.02 70);
-  --muted: oklch(0.95 0.008 90);
-  --muted-foreground: oklch(0.45 0.02 70);
-  --accent: oklch(0.93 0.02 110);
-  --accent-foreground: oklch(0.18 0.02 70);
+  --secondary: oklch(0.94 0 0);
+  --secondary-foreground: oklch(0.09 0 0);
+  --muted: oklch(0.94 0 0);
+  --muted-foreground: oklch(0.42 0 0);
+  --accent: oklch(0.92 0 0);
+  --accent-foreground: oklch(0.09 0 0);
   --destructive: oklch(0.6 0.22 27);
-  --destructive-foreground: oklch(0.985 0.005 95);
-  --border: oklch(0.9 0.01 90);
-  --input: oklch(0.92 0.01 90);
-  --ring: oklch(0.7 0.15 110);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.82 0 0);
+  --input: oklch(0.86 0 0);
+  --ring: oklch(0.09 0 0);
 }
 
 .dark {
@@ -96,33 +92,37 @@
   --popover-foreground: oklch(0.97 0.008 95);
   --primary: oklch(0.97 0.008 95);
   --primary-foreground: oklch(0.18 0.02 70);
-  --brand: oklch(0.86 0.19 110);
-  --brand-foreground: oklch(0.18 0.02 70);
+  --brand: oklch(0.86 0 0);
+  --brand-foreground: oklch(0.09 0 0);
   --secondary: oklch(0.26 0.018 75);
   --secondary-foreground: oklch(0.97 0.008 95);
   --muted: oklch(0.26 0.018 75);
   --muted-foreground: oklch(0.7 0.015 80);
-  --accent: oklch(0.3 0.04 110);
+  --accent: oklch(0.32 0 0);
   --accent-foreground: oklch(0.97 0.008 95);
   --destructive: oklch(0.7 0.19 22);
   --destructive-foreground: oklch(0.18 0.02 70);
   --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.7 0.15 110);
+  --ring: oklch(0.97 0.008 95);
 }
 
 @layer base {
   * {
     border-color: var(--color-border);
   }
-  html, body {
+  html,
+  body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     font-family: var(--font-display);
-    letter-spacing: -0.02em;
+    letter-spacing: 0;
   }
 }
