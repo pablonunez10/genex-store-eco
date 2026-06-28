@@ -134,7 +134,7 @@ function ProductPage() {
                       );
                       setOpen(true);
                     }}
-                    className="inline-flex items-center gap-2 rounded-[0.45rem] border-2 border-foreground bg-foreground px-5 py-3 text-sm font-black uppercase text-background transition hover:bg-[var(--color-brand)] hover:text-foreground"
+                    className="inline-flex items-center gap-2 rounded-[0.45rem] border-2 border-[var(--primary-dark)] bg-[var(--color-primary)] px-5 py-3 text-sm font-black uppercase text-[var(--color-primary-foreground)] transition hover:border-[var(--color-brand)] hover:bg-[var(--color-brand)]"
                   >
                     <ShoppingBag className="size-4" /> Agregar al carrito
                   </button>

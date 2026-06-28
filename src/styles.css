@@ -6,7 +6,7 @@
 
 /*
  * Genex Store design system.
- * Brand: pure monochrome, hard borders, strong contrast.
+ * Brand: clean teal tech palette with soft neutral surfaces.
  */
 
 @theme inline {
@@ -49,35 +49,47 @@
 :root {
   --radius: 0.45rem;
 
-  --background: oklch(0.99 0 0);
-  --foreground: oklch(0.09 0 0);
+  --primary: #0f766e;
+  --primary-hover: #115e59;
+  --primary-dark: var(--primary-hover);
+  --secondary: #14b8a6;
 
-  --ink: oklch(0.09 0 0);
-  --surface: oklch(1 0 0);
-  --surface-strong: oklch(0.955 0 0);
+  --background: #f8fafc;
+  --surface: #ffffff;
 
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.09 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.09 0 0);
+  --text: #1f2937;
+  --text-secondary: #6b7280;
+  --text-light: var(--text-secondary);
 
-  --primary: oklch(0.09 0 0);
-  --primary-foreground: oklch(0.99 0 0);
+  --border: #e5e7eb;
 
-  --brand: oklch(0.92 0 0);
-  --brand-foreground: oklch(0.09 0 0);
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
 
-  --secondary: oklch(0.94 0 0);
-  --secondary-foreground: oklch(0.09 0 0);
-  --muted: oklch(0.94 0 0);
-  --muted-foreground: oklch(0.42 0 0);
-  --accent: oklch(0.92 0 0);
-  --accent-foreground: oklch(0.09 0 0);
-  --destructive: oklch(0.6 0.22 27);
-  --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.82 0 0);
-  --input: oklch(0.86 0 0);
-  --ring: oklch(0.09 0 0);
+  --foreground: var(--text);
+  --ink: var(--text);
+  --surface-strong: #eef2f7;
+
+  --card: var(--surface);
+  --card-foreground: var(--text);
+  --popover: var(--surface);
+  --popover-foreground: var(--text);
+
+  --primary-foreground: #ffffff;
+
+  --brand: var(--secondary);
+  --brand-foreground: #ffffff;
+
+  --secondary-foreground: #ffffff;
+  --muted: #f1f5f9;
+  --muted-foreground: var(--text-light);
+  --accent: #eff6ff;
+  --accent-foreground: var(--text);
+  --destructive: var(--danger);
+  --destructive-foreground: #ffffff;
+  --input: var(--border);
+  --ring: var(--primary);
 }
 
 .dark {

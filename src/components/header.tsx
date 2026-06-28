@@ -28,7 +28,7 @@ export function Header({ onSearch, searchValue }: HeaderProps) {
 
         <button
           onClick={() => setOpen(true)}
-          className={`relative ml-auto inline-flex h-11 items-center gap-2 rounded-[0.45rem] border-2 border-foreground bg-foreground px-4 text-sm font-black uppercase text-background transition hover:-translate-y-0.5 hover:shadow-[4px_4px_0_var(--color-brand)] ${onSearch ? "md:ml-0" : ""}`}
+          className={`relative ml-auto inline-flex h-11 items-center gap-2 rounded-[0.45rem] border-2 border-[var(--primary-dark)] bg-[var(--color-primary)] px-4 text-sm font-black uppercase text-[var(--color-primary-foreground)] transition hover:-translate-y-0.5 hover:shadow-[4px_4px_0_var(--color-brand)] ${onSearch ? "md:ml-0" : ""}`}
         >
           <ShoppingBag className="size-4" />
           <span className="hidden sm:inline">Carrito</span>

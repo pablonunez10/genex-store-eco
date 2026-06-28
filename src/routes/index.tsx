@@ -126,11 +126,11 @@ function Home() {
     <div className="min-h-screen bg-background text-foreground">
       <Header onSearch={setSearchInput} searchValue={searchInput} />
 
-      <section className="relative overflow-hidden border-b-2 border-foreground ">
-        <div className="absolute inset-x-0 top-0 h-8 border-b-2 border-foreground bg-[repeating-linear-gradient(90deg,var(--color-foreground)_0_18px,transparent_18px_36px)] opacity-[0.08]" />
+      <section className="relative overflow-hidden border-b border-border bg-[linear-gradient(135deg,#ffffff_0%,#f8fafc_48%,#eff6ff_100%)]">
+        <div className="absolute inset-x-0 top-0 h-8 border-b border-border bg-[repeating-linear-gradient(90deg,var(--color-primary)_0_18px,transparent_18px_36px)] opacity-[0.08]" />
         <div className="mx-auto grid max-w-7xl gap-8 px-4 pb-12 pt-16 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:pb-16 lg:pt-20">
           <div className="flex flex-col justify-center gap-6">
-            <span className="inline-flex w-fit items-center gap-2 rounded-[0.35rem] border-2 border-foreground  px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.25em] shadow-[4px_4px_0_var(--color-foreground)]">
+            <span className="inline-flex w-fit items-center gap-2 rounded-[0.35rem] border-2 border-[var(--primary-dark)] bg-[var(--color-primary)] px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.25em] text-[var(--color-primary-foreground)] shadow-[4px_4px_0_var(--color-brand)]">
               Nuevo online
             </span>
             <h1 className="max-w-3xl font-display text-5xl font-black uppercase leading-[0.9] tracking-normal sm:text-7xl lg:text-8xl">
@@ -143,7 +143,7 @@ function Home() {
             <div className="flex flex-wrap gap-3">
               <a
                 href="#catalogo"
-                className="inline-flex h-12 items-center gap-2 rounded-[0.45rem] border-2 border-foreground bg-foreground px-5 text-sm font-black uppercase text-background transition hover:-translate-y-0.5 hover:shadow-[5px_5px_0_var(--color-brand)]"
+                className="inline-flex h-12 items-center gap-2 rounded-[0.45rem] border-2 border-[var(--primary-dark)] bg-[var(--color-primary)] px-5 text-sm font-black uppercase text-[var(--color-primary-foreground)] transition hover:-translate-y-0.5 hover:border-[var(--color-brand)] hover:bg-[var(--color-brand)] hover:shadow-[5px_5px_0_var(--primary-dark)]"
               >
                 Ver catalogo <ArrowRight className="size-4" />
               </a>
@@ -151,17 +151,17 @@ function Home() {
                 href="https://www.instagram.com/genexstore/"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex h-12 items-center gap-2 rounded-[0.45rem] border-2 border-foreground  px-5 text-sm font-black uppercase transition hover:-translate-y-0.5 hover:shadow-[5px_5px_0_var(--color-brand)]"
+                className="inline-flex h-12 items-center gap-2 rounded-[0.45rem] border-2 border-[var(--color-primary)] bg-[var(--color-surface)] px-5 text-sm font-black uppercase text-[var(--color-primary)] transition hover:-translate-y-0.5 hover:border-[var(--color-brand)] hover:text-[var(--color-brand)] hover:shadow-[5px_5px_0_var(--color-brand)]"
               >
                 <Instagram className="size-4" /> Instagram
               </a>
             </div>
           </div>
-          <div className="relative overflow-hidden border-2 border-foreground bg-foreground text-background shadow-[10px_10px_0_var(--color-brand)]">
-            <div className="absolute inset-0 opacity-20 " />
+          <div className="relative overflow-hidden border-2 border-[var(--primary-dark)] bg-[var(--primary-dark)] text-white shadow-[10px_10px_0_var(--color-brand)]">
+            <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(#ffffff_1px,transparent_1px),linear-gradient(90deg,#ffffff_1px,transparent_1px)] [background-size:22px_22px]" />
             <div className="relative flex h-full flex-col justify-between p-6 sm:p-8">
               <div className="flex justify-between gap-4">
-                <span className="text-xs font-black uppercase tracking-[0.35em] text-background/65">
+                <span className="text-xs font-black uppercase tracking-[0.35em] text-white/65">
                   Online store
                 </span>
                 <Sparkles className="size-5 " />
@@ -171,8 +171,8 @@ function Home() {
                 <div className="font-display text-6xl font-black uppercase leading-[0.82] tracking-normal sm:text-8xl">
                   GEN<span className=""></span>EX
                 </div>
-                <div className="flex items-end justify-between gap-4 border-t-2 border-background pt-4">
-                  <p className="max-w-xs text-sm font-semibold leading-relaxed text-background/70">
+                <div className="flex items-end justify-between gap-4 border-t-2 border-white pt-4">
+                  <p className="max-w-xs text-sm font-semibold leading-relaxed text-white/70">
                     Catalogo directo, pagos por transferencia y confirmacion simple.
                   </p>
                   <span className="font-display text-4xl font-black">PY</span>
@@ -183,7 +183,7 @@ function Home() {
         </div>
       </section>
 
-      <section className="border-b-2 border-foreground ">
+      <section className="border-b border-border bg-[var(--color-accent)]">
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-0 px-4 sm:grid-cols-3 sm:px-6 lg:px-8">
           {[
             {
@@ -204,9 +204,9 @@ function Home() {
           ].map((f) => (
             <div
               key={f.title}
-              className="flex items-start gap-3 border-foreground py-5 sm:border-r sm:px-5 sm:first:border-l"
+              className="flex items-start gap-3 border-border py-5 sm:border-r sm:px-5 sm:first:border-l"
             >
-              <div className="rounded-[0.35rem] border-2 border-foreground bg-background p-2.5">
+              <div className="rounded-[0.35rem] border-2 border-[var(--color-brand)] bg-[var(--color-surface)] p-2.5 text-[var(--color-brand)]">
                 <f.icon className="size-5" />
               </div>
               <div>
@@ -241,7 +241,7 @@ function Home() {
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder="Buscar productos..."
-            className="h-12 w-full rounded-[0.45rem] border-2 border-foreground  px-4 text-sm font-semibold outline-none focus:shadow-[4px_4px_0_var(--color-brand)]"
+            className="h-12 w-full rounded-[0.45rem] border-2 border-border bg-[var(--color-surface)] px-4 text-sm font-semibold outline-none focus:border-[var(--color-primary)] focus:shadow-[4px_4px_0_var(--color-brand)]"
           />
         </div>
 
@@ -250,8 +250,8 @@ function Home() {
             onClick={() => setCat("all")}
             className={`shrink-0 rounded-[0.35rem] border-2 px-3.5 py-2 text-xs font-black uppercase transition ${
               cat === "all"
-                ? "border-foreground bg-foreground text-background"
-                : "border-foreground "
+                ? "border-[var(--primary-dark)] bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
+                : "border-border bg-[var(--color-surface)] text-foreground hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
             }`}
           >
             Todos
@@ -265,8 +265,8 @@ function Home() {
                 className={`shrink-0 rounded-[0.35rem] border-2 px-3.5 py-2 text-xs font-black uppercase transition ${
                   (OTROS_IDS.includes(cat) && c.id === OTROS_PRIMARY_ID) ||
                   (cat === c.id && !OTROS_IDS.includes(cat))
-                    ? "border-foreground bg-foreground text-background"
-                    : "border-foreground "
+                    ? "border-[var(--primary-dark)] bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
+                    : "border-border bg-[var(--color-surface)] text-foreground hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
                 }`}
               >
                 {c.name}
@@ -284,11 +284,14 @@ function Home() {
         {productsQuery.isLoading ? (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {Array.from({ length: PAGE_SIZE }).map((_, i) => (
-              <div key={i} className="animate-pulse border-2 border-foreground " />
+              <div
+                key={i}
+                className="animate-pulse border-2 border-border bg-[var(--color-surface-strong)]"
+              />
             ))}
           </div>
         ) : (productsQuery.data?.items.length ?? 0) === 0 ? (
-          <div className="border-2 border-foreground p-10 text-center text-sm font-semibold text-muted-foreground">
+          <div className="border-2 border-border bg-[var(--color-surface)] p-10 text-center text-sm font-semibold text-muted-foreground">
             No encontramos productos para tu busqueda.
           </div>
         ) : (
@@ -306,9 +309,9 @@ function Home() {
         )}
       </section>
 
-      <footer className="border-t-2 border-foreground bg-foreground py-10 text-background">
-        <div className="mx-auto max-w-7xl px-4 text-center text-xs font-semibold text-background/70 sm:px-6 lg:px-8">
-          <div className="font-display text-2xl font-black uppercase tracking-normal text-background">
+      <footer className="border-t border-[var(--primary-dark)] bg-[var(--primary-dark)] py-10 text-white">
+        <div className="mx-auto max-w-7xl px-4 text-center text-xs font-semibold text-white/70 sm:px-6 lg:px-8">
+          <div className="font-display text-2xl font-black uppercase tracking-normal text-white">
             GENEX Store
           </div>
           <div className="mt-1">
@@ -356,7 +359,7 @@ function Pagination({
       <button
         onClick={() => onChange(Math.max(1, page - 1))}
         disabled={page === 1}
-        className="inline-flex h-10 items-center gap-1 rounded-[0.35rem] border-2 border-foreground px-3 text-xs font-black uppercase transition  disabled:cursor-not-allowed disabled:opacity-50"
+        className="inline-flex h-10 items-center gap-1 rounded-[0.35rem] border-2 border-border bg-[var(--color-surface)] px-3 text-xs font-black uppercase transition hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] disabled:cursor-not-allowed disabled:opacity-50"
       >
         <ChevronLeft className="size-3.5" /> Anterior
       </button>
@@ -370,7 +373,9 @@ function Pagination({
             key={p}
             onClick={() => onChange(p)}
             className={`h-10 min-w-10 rounded-[0.35rem] border-2 px-3 text-xs font-black transition ${
-              p === page ? "border-foreground bg-foreground text-background" : "border-foreground "
+              p === page
+                ? "border-[var(--primary-dark)] bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
+                : "border-border bg-[var(--color-surface)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
             }`}
           >
             {p}
@@ -380,7 +385,7 @@ function Pagination({
       <button
         onClick={() => onChange(Math.min(totalPages, page + 1))}
         disabled={page === totalPages}
-        className="inline-flex h-10 items-center gap-1 rounded-[0.35rem] border-2 border-foreground disabled:cursor-not-allowed disabled:opacity-50"
+        className="inline-flex h-10 items-center gap-1 rounded-[0.35rem] border-2 border-border bg-[var(--color-surface)] px-3 text-xs font-black uppercase transition hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] disabled:cursor-not-allowed disabled:opacity-50"
       >
         Siguiente <ChevronRight className="size-3.5" />
       </button>

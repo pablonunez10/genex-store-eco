@@ -72,7 +72,7 @@ export function ProductCard({
               });
               setOpen(true);
             }}
-            className="inline-flex h-9 items-center gap-1 rounded-[0.35rem] border-2 border-foreground bg-foreground px-3 text-xs font-black uppercase text-background transition hover:bg-[var(--color-brand)] hover:text-foreground disabled:cursor-not-allowed disabled:border-muted disabled:bg-muted disabled:text-muted-foreground"
+            className="inline-flex h-9 items-center gap-1 rounded-[0.35rem] border-2 border-[var(--primary-dark)] bg-[var(--color-primary)] px-3 text-xs font-black uppercase text-[var(--color-primary-foreground)] transition hover:border-[var(--color-brand)] hover:bg-[var(--color-brand)] disabled:cursor-not-allowed disabled:border-muted disabled:bg-muted disabled:text-muted-foreground"
           >
             <Plus className="size-3.5" /> Agregar
           </button>

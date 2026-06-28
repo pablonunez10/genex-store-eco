@@ -96,7 +96,7 @@ export function CartDrawer() {
             <Link
               to="/checkout"
               onClick={() => setOpen(false)}
-              className="block w-full rounded-[0.45rem] border-2 border-foreground bg-foreground py-3 text-center text-sm font-black uppercase text-background transition hover:bg-[var(--color-brand)] hover:text-foreground"
+              className="block w-full rounded-[0.45rem] border-2 border-[var(--primary-dark)] bg-[var(--color-primary)] py-3 text-center text-sm font-black uppercase text-[var(--color-primary-foreground)] transition hover:border-[var(--color-brand)] hover:bg-[var(--color-brand)]"
             >
               Finalizar pedido
             </Link>

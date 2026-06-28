@@ -135,7 +135,7 @@ function Checkout() {
             <p className="text-sm font-semibold text-muted-foreground">Tu carrito esta vacio.</p>
             <Link
               to="/"
-              className="mt-4 inline-flex rounded-[0.45rem] border-2 border-foreground bg-foreground px-5 py-2.5 text-sm font-black uppercase text-background hover:bg-[var(--color-brand)] hover:text-foreground"
+              className="mt-4 inline-flex rounded-[0.45rem] border-2 border-[var(--primary-dark)] bg-[var(--color-primary)] px-5 py-2.5 text-sm font-black uppercase text-[var(--color-primary-foreground)] hover:border-[var(--color-brand)] hover:bg-[var(--color-brand)]"
             >
               Ver catalogo
             </Link>
@@ -333,7 +333,7 @@ function Checkout() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="mt-4 w-full rounded-[0.45rem] border-2 border-foreground bg-foreground py-3 text-sm font-black uppercase text-background transition hover:bg-[var(--color-brand)] hover:text-foreground disabled:opacity-60"
+                  className="mt-4 w-full rounded-[0.45rem] border-2 border-[var(--primary-dark)] bg-[var(--color-primary)] py-3 text-sm font-black uppercase text-[var(--color-primary-foreground)] transition hover:border-[var(--color-brand)] hover:bg-[var(--color-brand)] disabled:opacity-60"
                 >
                   {submitting ? "Enviando pedido..." : "Confirmar pedido"}
                 </button>

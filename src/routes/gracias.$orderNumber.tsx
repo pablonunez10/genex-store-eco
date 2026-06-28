@@ -30,7 +30,7 @@ function ThankYou() {
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 rounded-[0.45rem] border-2 border-foreground bg-foreground px-5 py-3 text-sm font-black uppercase text-background transition hover:bg-[var(--color-brand)] hover:text-foreground"
+            className="inline-flex items-center gap-2 rounded-[0.45rem] border-2 border-[var(--primary-dark)] bg-[var(--color-primary)] px-5 py-3 text-sm font-black uppercase text-[var(--color-primary-foreground)] transition hover:border-[var(--color-brand)] hover:bg-[var(--color-brand)]"
           >
             <Home className="size-4" /> Volver al inicio
           </Link>
