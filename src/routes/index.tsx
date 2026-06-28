@@ -157,26 +157,57 @@ function Home() {
               </a>
             </div>
           </div>
-          <div className="relative overflow-hidden border-2 border-[var(--primary-dark)] bg-[var(--primary-dark)] text-white shadow-[10px_10px_0_var(--color-brand)]">
-            <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(#ffffff_1px,transparent_1px),linear-gradient(90deg,#ffffff_1px,transparent_1px)] [background-size:22px_22px]" />
-            <div className="relative flex h-full flex-col justify-between p-6 sm:p-8">
-              <div className="flex justify-between gap-4">
-                <span className="text-xs font-black uppercase tracking-[0.35em] text-white/65">
-                  Online store
+          <div className="relative overflow-hidden rounded-[0.75rem] border border-border bg-[var(--color-surface)] shadow-[0_24px_60px_rgb(15_118_110_/_0.16)]">
+            <div className="h-2 bg-[linear-gradient(90deg,var(--color-primary),var(--color-brand))]" />
+            <div className="p-6 sm:p-8">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <span className="text-xs font-black uppercase tracking-[0.28em] text-[var(--color-primary)]">
+                    Genex checkout
+                  </span>
+                  <div className="mt-4">
+                    <GenexLogo />
+                  </div>
+                </div>
+                <span className="inline-flex items-center gap-1 rounded-full bg-[var(--color-accent)] px-3 py-1 text-xs font-black uppercase text-[var(--color-primary)]">
+                  <Sparkles className="size-3.5" /> Online
                 </span>
-                <Sparkles className="size-5 " />
               </div>
-              <div className="space-y-5">
-                <GenexLogo compact />
-                <div className="font-display text-6xl font-black uppercase leading-[0.82] tracking-normal sm:text-8xl">
-                  GEN<span className=""></span>EX
-                </div>
-                <div className="flex items-end justify-between gap-4 border-t-2 border-white pt-4">
-                  <p className="max-w-xs text-sm font-semibold leading-relaxed text-white/70">
-                    Catalogo directo, pagos por transferencia y confirmacion simple.
-                  </p>
-                  <span className="font-display text-4xl font-black">PY</span>
-                </div>
+
+              <div className="mt-8 space-y-4">
+                {[
+                  {
+                    label: "Catalogo directo",
+                    value: "Stock actualizado",
+                    icon: ShieldCheck,
+                  },
+                  {
+                    label: "Pago por transferencia",
+                    value: "Comprobante adjunto",
+                    icon: Truck,
+                  },
+                  {
+                    label: "Confirmacion simple",
+                    value: "Atencion por WhatsApp",
+                    icon: MessageCircle,
+                  },
+                ].map((item) => (
+                  <div
+                    key={item.label}
+                    className="flex items-center gap-3 border-b border-border pb-4 last:border-b-0 last:pb-0"
+                  >
+                    <span className="grid size-10 shrink-0 place-items-center rounded-[0.5rem] bg-[var(--color-accent)] text-[var(--color-primary)]">
+                      <item.icon className="size-5" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-black uppercase text-foreground">
+                        {item.label}
+                      </div>
+                      <div className="text-sm font-medium text-muted-foreground">{item.value}</div>
+                    </div>
+                    <span className="h-2.5 w-2.5 rounded-full bg-[var(--color-brand)]" />
+                  </div>
+                ))}
               </div>
             </div>
           </div>
