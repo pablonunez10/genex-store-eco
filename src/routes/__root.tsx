@@ -19,15 +19,17 @@ function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="font-display text-7xl font-bold">404</h1>
-        <h2 className="mt-4 font-display text-xl font-semibold">Pagina no encontrada</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <h1 className="font-display text-7xl font-black uppercase tracking-normal">404</h1>
+        <h2 className="mt-4 font-display text-xl font-black uppercase tracking-normal">
+          Pagina no encontrada
+        </h2>
+        <p className="mt-2 text-sm font-medium text-muted-foreground">
           La pagina que buscas no existe o fue movida.
         </p>
         <div className="mt-6">
           <Link
             to="/"
-            className="inline-flex items-center justify-center rounded-full bg-[var(--color-primary)] px-5 py-2.5 text-sm font-semibold text-[var(--color-primary-foreground)] transition hover:opacity-90"
+            className="inline-flex items-center justify-center rounded-[0.45rem] border-2 border-foreground bg-foreground px-5 py-2.5 text-sm font-black uppercase text-background transition hover:bg-[var(--color-brand)] hover:text-foreground"
           >
             Volver al inicio
           </Link>
@@ -47,8 +49,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="font-display text-xl font-semibold">Hubo un problema</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <h1 className="font-display text-xl font-black uppercase tracking-normal">
+          Hubo un problema
+        </h1>
+        <p className="mt-2 text-sm font-medium text-muted-foreground">
           Algo no funciono como esperabamos. Podes intentar de nuevo o volver al inicio.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
@@ -57,13 +61,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
               router.invalidate();
               reset();
             }}
-            className="inline-flex items-center justify-center rounded-full bg-[var(--color-primary)] px-5 py-2.5 text-sm font-semibold text-[var(--color-primary-foreground)] transition hover:opacity-90"
+            className="inline-flex items-center justify-center rounded-[0.45rem] border-2 border-foreground bg-foreground px-5 py-2.5 text-sm font-black uppercase text-background transition hover:bg-[var(--color-brand)] hover:text-foreground"
           >
             Reintentar
           </button>
           <a
             href="/"
-            className="inline-flex items-center justify-center rounded-full border border-border bg-background px-5 py-2.5 text-sm font-semibold transition hover:bg-[var(--color-surface-strong)]"
+            className="inline-flex items-center justify-center rounded-[0.45rem] border-2 border-foreground bg-background px-5 py-2.5 text-sm font-black uppercase transition hover:bg-[var(--color-brand)]"
           >
             Inicio
           </a>
@@ -79,7 +83,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: `${STORE.name} — ${STORE.tagline}` },
-      { name: "description", content: `${STORE.name}: tienda online con pago por transferencia bancaria y envio de comprobante.` },
+      {
+        name: "description",
+        content: `${STORE.name}: tienda online con pago por transferencia bancaria y envio de comprobante.`,
+      },
       { property: "og:title", content: STORE.name },
       { property: "og:description", content: STORE.tagline },
       { property: "og:type", content: "website" },
@@ -90,8 +97,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "Tu tienda de accesorios y tecnologia" },
       { property: "og:description", content: "Tu tienda de accesorios y tecnologia" },
       { name: "twitter:description", content: "Tu tienda de accesorios y tecnologia" },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/PKe8uW2JULbKZF7te5WoKu6h1y73/social-images/social-1782328368721-genex_store.webp" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/PKe8uW2JULbKZF7te5WoKu6h1y73/social-images/social-1782328368721-genex_store.webp" },
+      {
+        property: "og:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/PKe8uW2JULbKZF7te5WoKu6h1y73/social-images/social-1782328368721-genex_store.webp",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/PKe8uW2JULbKZF7te5WoKu6h1y73/social-images/social-1782328368721-genex_store.webp",
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
