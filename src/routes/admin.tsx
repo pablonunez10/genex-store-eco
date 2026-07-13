@@ -207,7 +207,7 @@ function AdminPage() {
       </header>
 
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        <div className="mb-6 flex items-center gap-3">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <input
@@ -220,7 +220,44 @@ function AdminPage() {
               className="h-11 w-full rounded-full border border-border bg-[var(--color-surface)] pl-10 pr-4 text-sm outline-none focus:border-[var(--color-ring)]"
             />
           </div>
+          {!bulk.running ? (
+            <button
+              onClick={runBulkGenerate}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[var(--color-primary)] px-5 text-sm font-semibold text-[var(--color-primary-foreground)] transition hover:opacity-90"
+            >
+              <Wand2 className="size-4" /> Generar todas las faltantes con IA
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                bulkStopRef.stop = true;
+              }}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-destructive px-5 text-sm font-semibold text-destructive transition hover:bg-destructive/10"
+            >
+              <StopCircle className="size-4" /> Detener
+            </button>
+          )}
         </div>
+
+        {(bulk.running || bulk.done > 0) && (
+          <div className="mb-6 rounded-2xl border border-border bg-[var(--color-surface)] p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 text-sm font-semibold">
+                {bulk.running ? <Loader2 className="size-4 animate-spin" /> : <CheckCircle2 className="size-4 text-emerald-600" />}
+                <span>
+                  {bulk.done} / {bulk.total} generadas{bulk.errors > 0 && ` · ${bulk.errors} con error`}
+                </span>
+              </div>
+              <div className="line-clamp-1 max-w-[60%] text-xs text-muted-foreground">{bulk.current}</div>
+            </div>
+            <div className="mt-2 h-2 overflow-hidden rounded-full bg-[var(--color-surface-strong)]">
+              <div
+                className="h-full bg-[var(--color-primary)] transition-all"
+                style={{ width: `${bulk.total > 0 ? Math.round((bulk.done / bulk.total) * 100) : 0}%` }}
+              />
+            </div>
+          </div>
+        )}
 
         {productsQuery.isLoading ? (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
