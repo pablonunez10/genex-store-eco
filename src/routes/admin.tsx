@@ -4,7 +4,7 @@ import { useQuery, useQueryClient, keepPreviousData } from "@tanstack/react-quer
 import { supabase } from "@/integrations/supabase/client";
 import { inventario, type InventarioProduct } from "@/integrations/inventario/client";
 import { useProductImages } from "@/lib/product-images";
-import { ArrowLeft, Upload, CheckCircle2, Loader2, LogOut, Search, Sparkles } from "lucide-react";
+import { ArrowLeft, Upload, CheckCircle2, Loader2, LogOut, Search, Sparkles, Wand2, StopCircle } from "lucide-react";
 
 const PAGE_SIZE = 20;
 // Signed URL TTL ~ 1 year (private bucket). Refresh on each upload.
