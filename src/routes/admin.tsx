@@ -45,6 +45,92 @@ function AdminPage() {
     };
   }, []);
 
+  const [bulk, setBulk] = useState<{ running: boolean; done: number; total: number; current: string; errors: number }>({
+    running: false,
+    done: 0,
+    total: 0,
+    current: "",
+    errors: 0,
+  });
+  const bulkStopRef = (globalThis as unknown as { __bulkStop?: { stop: boolean } }).__bulkStop ??= { stop: false };
+
+  const runBulkGenerate = async () => {
+    bulkStopRef.stop = false;
+    setBulk({ running: true, done: 0, total: 0, current: "Cargando productos...", errors: 0 });
+    try {
+      // Fetch all active products (paginated)
+      const all: InventarioProduct[] = [];
+      const BATCH = 500;
+      for (let offset = 0; ; offset += BATCH) {
+        const { data, error } = await inventario
+          .from("products")
+          .select("id,name,sku,description,current_stock,min_stock,purchase_price,sale_price,is_active,category_id,created_at,updated_at")
+          .eq("is_active", true)
+          .order("name", { ascending: true })
+          .range(offset, offset + BATCH - 1);
+        if (error) throw error;
+        const rows = (data ?? []) as InventarioProduct[];
+        all.push(...rows);
+        if (rows.length < BATCH) break;
+      }
+
+      // Existing images
+      const { data: existingRows, error: exErr } = await supabase
+        .from("product_images")
+        .select("sku");
+      if (exErr) throw exErr;
+      const existing = new Set((existingRows ?? []).map((r) => r.sku));
+
+      const pending = all.filter((p) => p.sku && !existing.has(p.sku));
+      setBulk((b) => ({ ...b, total: pending.length, current: pending[0]?.name ?? "" }));
+
+      let done = 0;
+      let errors = 0;
+      for (const p of pending) {
+        if (bulkStopRef.stop) break;
+        setBulk((b) => ({ ...b, current: p.name, done, errors }));
+        try {
+          const res = await fetch("/api/generate-product-image", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: p.name, description: p.description }),
+          });
+          if (!res.ok) throw new Error(await res.text());
+          const { b64 } = (await res.json()) as { b64: string };
+          const bin = atob(b64);
+          const bytes = new Uint8Array(bin.length);
+          for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+
+          const path = `${p.sku}-${Date.now()}.png`;
+          const { error: upErr } = await supabase.storage
+            .from("product-images")
+            .upload(path, new Blob([bytes], { type: "image/png" }), { upsert: true, contentType: "image/png" });
+          if (upErr) throw upErr;
+          const { data: signed, error: signErr } = await supabase.storage
+            .from("product-images")
+            .createSignedUrl(path, SIGNED_URL_TTL);
+          if (signErr) throw signErr;
+          const { error: dbErr } = await supabase
+            .from("product_images")
+            .upsert({ sku: p.sku, image_url: signed.signedUrl }, { onConflict: "sku" });
+          if (dbErr) throw dbErr;
+        } catch (err) {
+          console.error("bulk gen failed for", p.sku, err);
+          errors += 1;
+        }
+        done += 1;
+        setBulk((b) => ({ ...b, done, errors }));
+        // small throttle to avoid rate limit
+        await new Promise((r) => setTimeout(r, 400));
+      }
+      qc.invalidateQueries({ queryKey: ["product-images"] });
+      setBulk((b) => ({ ...b, running: false, current: bulkStopRef.stop ? "Detenido" : "Completado" }));
+    } catch (err) {
+      console.error(err);
+      setBulk((b) => ({ ...b, running: false, current: err instanceof Error ? err.message : "Error" }));
+    }
+  };
+
   const productsQuery = useQuery({
     queryKey: ["admin-products", page, q],
     enabled: !!isAdmin,
