@@ -4,7 +4,7 @@ import { useQuery, useQueryClient, keepPreviousData } from "@tanstack/react-quer
 import { supabase } from "@/integrations/supabase/client";
 import { inventario, type InventarioProduct } from "@/integrations/inventario/client";
 import { useProductImages } from "@/lib/product-images";
-import { ArrowLeft, Upload, CheckCircle2, Loader2, LogOut, Search, Sparkles } from "lucide-react";
+import { ArrowLeft, Upload, CheckCircle2, Loader2, LogOut, Search, Sparkles, Wand2, StopCircle } from "lucide-react";
 
 const PAGE_SIZE = 20;
 // Signed URL TTL ~ 1 year (private bucket). Refresh on each upload.
@@ -44,6 +44,92 @@ function AdminPage() {
       mounted = false;
     };
   }, []);
+
+  const [bulk, setBulk] = useState<{ running: boolean; done: number; total: number; current: string; errors: number }>({
+    running: false,
+    done: 0,
+    total: 0,
+    current: "",
+    errors: 0,
+  });
+  const bulkStopRef = (globalThis as unknown as { __bulkStop?: { stop: boolean } }).__bulkStop ??= { stop: false };
+
+  const runBulkGenerate = async () => {
+    bulkStopRef.stop = false;
+    setBulk({ running: true, done: 0, total: 0, current: "Cargando productos...", errors: 0 });
+    try {
+      // Fetch all active products (paginated)
+      const all: InventarioProduct[] = [];
+      const BATCH = 500;
+      for (let offset = 0; ; offset += BATCH) {
+        const { data, error } = await inventario
+          .from("products")
+          .select("id,name,sku,description,current_stock,min_stock,purchase_price,sale_price,is_active,category_id,created_at,updated_at")
+          .eq("is_active", true)
+          .order("name", { ascending: true })
+          .range(offset, offset + BATCH - 1);
+        if (error) throw error;
+        const rows = (data ?? []) as InventarioProduct[];
+        all.push(...rows);
+        if (rows.length < BATCH) break;
+      }
+
+      // Existing images
+      const { data: existingRows, error: exErr } = await supabase
+        .from("product_images")
+        .select("sku");
+      if (exErr) throw exErr;
+      const existing = new Set((existingRows ?? []).map((r) => r.sku));
+
+      const pending = all.filter((p) => p.sku && !existing.has(p.sku));
+      setBulk((b) => ({ ...b, total: pending.length, current: pending[0]?.name ?? "" }));
+
+      let done = 0;
+      let errors = 0;
+      for (const p of pending) {
+        if (bulkStopRef.stop) break;
+        setBulk((b) => ({ ...b, current: p.name, done, errors }));
+        try {
+          const res = await fetch("/api/generate-product-image", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: p.name, description: p.description }),
+          });
+          if (!res.ok) throw new Error(await res.text());
+          const { b64 } = (await res.json()) as { b64: string };
+          const bin = atob(b64);
+          const bytes = new Uint8Array(bin.length);
+          for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+
+          const path = `${p.sku}-${Date.now()}.png`;
+          const { error: upErr } = await supabase.storage
+            .from("product-images")
+            .upload(path, new Blob([bytes], { type: "image/png" }), { upsert: true, contentType: "image/png" });
+          if (upErr) throw upErr;
+          const { data: signed, error: signErr } = await supabase.storage
+            .from("product-images")
+            .createSignedUrl(path, SIGNED_URL_TTL);
+          if (signErr) throw signErr;
+          const { error: dbErr } = await supabase
+            .from("product_images")
+            .upsert({ sku: p.sku, image_url: signed.signedUrl }, { onConflict: "sku" });
+          if (dbErr) throw dbErr;
+        } catch (err) {
+          console.error("bulk gen failed for", p.sku, err);
+          errors += 1;
+        }
+        done += 1;
+        setBulk((b) => ({ ...b, done, errors }));
+        // small throttle to avoid rate limit
+        await new Promise((r) => setTimeout(r, 400));
+      }
+      qc.invalidateQueries({ queryKey: ["product-images"] });
+      setBulk((b) => ({ ...b, running: false, current: bulkStopRef.stop ? "Detenido" : "Completado" }));
+    } catch (err) {
+      console.error(err);
+      setBulk((b) => ({ ...b, running: false, current: err instanceof Error ? err.message : "Error" }));
+    }
+  };
 
   const productsQuery = useQuery({
     queryKey: ["admin-products", page, q],
@@ -121,7 +207,7 @@ function AdminPage() {
       </header>
 
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        <div className="mb-6 flex items-center gap-3">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <input
@@ -134,7 +220,44 @@ function AdminPage() {
               className="h-11 w-full rounded-full border border-border bg-[var(--color-surface)] pl-10 pr-4 text-sm outline-none focus:border-[var(--color-ring)]"
             />
           </div>
+          {!bulk.running ? (
+            <button
+              onClick={runBulkGenerate}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[var(--color-primary)] px-5 text-sm font-semibold text-[var(--color-primary-foreground)] transition hover:opacity-90"
+            >
+              <Wand2 className="size-4" /> Generar todas las faltantes con IA
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                bulkStopRef.stop = true;
+              }}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-destructive px-5 text-sm font-semibold text-destructive transition hover:bg-destructive/10"
+            >
+              <StopCircle className="size-4" /> Detener
+            </button>
+          )}
         </div>
+
+        {(bulk.running || bulk.done > 0) && (
+          <div className="mb-6 rounded-2xl border border-border bg-[var(--color-surface)] p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 text-sm font-semibold">
+                {bulk.running ? <Loader2 className="size-4 animate-spin" /> : <CheckCircle2 className="size-4 text-emerald-600" />}
+                <span>
+                  {bulk.done} / {bulk.total} generadas{bulk.errors > 0 && ` · ${bulk.errors} con error`}
+                </span>
+              </div>
+              <div className="line-clamp-1 max-w-[60%] text-xs text-muted-foreground">{bulk.current}</div>
+            </div>
+            <div className="mt-2 h-2 overflow-hidden rounded-full bg-[var(--color-surface-strong)]">
+              <div
+                className="h-full bg-[var(--color-primary)] transition-all"
+                style={{ width: `${bulk.total > 0 ? Math.round((bulk.done / bulk.total) * 100) : 0}%` }}
+              />
+            </div>
+          </div>
+        )}
 
         {productsQuery.isLoading ? (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
