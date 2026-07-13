@@ -4,7 +4,7 @@ import { useQuery, useQueryClient, keepPreviousData } from "@tanstack/react-quer
 import { supabase } from "@/integrations/supabase/client";
 import { inventario, type InventarioProduct } from "@/integrations/inventario/client";
 import { useProductImages } from "@/lib/product-images";
-import { ArrowLeft, Upload, CheckCircle2, Loader2, LogOut, Search } from "lucide-react";
+import { ArrowLeft, Upload, CheckCircle2, Loader2, LogOut, Search, Sparkles } from "lucide-react";
 
 const PAGE_SIZE = 20;
 // Signed URL TTL ~ 1 year (private bucket). Refresh on each upload.
@@ -192,38 +192,66 @@ function ProductImageRow({
   currentUrl?: string;
   onSaved: () => void;
 }) {
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState<false | "upload" | "ai">(false);
   const [error, setError] = useState<string | null>(null);
   const [savedTick, setSavedTick] = useState(false);
 
+  const saveBlob = async (blob: Blob, ext: string) => {
+    const path = `${product.sku}-${Date.now()}.${ext}`;
+    const { error: upErr } = await supabase.storage
+      .from("product-images")
+      .upload(path, blob, { upsert: true, contentType: blob.type });
+    if (upErr) throw upErr;
+
+    const { data: signed, error: signErr } = await supabase.storage
+      .from("product-images")
+      .createSignedUrl(path, SIGNED_URL_TTL);
+    if (signErr) throw signErr;
+
+    const { error: dbErr } = await supabase
+      .from("product_images")
+      .upsert({ sku: product.sku, image_url: signed.signedUrl }, { onConflict: "sku" });
+    if (dbErr) throw dbErr;
+  };
+
   const onFile = async (file: File) => {
-    setBusy(true);
+    setBusy("upload");
     setError(null);
     setSavedTick(false);
     try {
       const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-      const path = `${product.sku}-${Date.now()}.${ext}`;
-
-      const { error: upErr } = await supabase.storage
-        .from("product-images")
-        .upload(path, file, { upsert: true, contentType: file.type });
-      if (upErr) throw upErr;
-
-      const { data: signed, error: signErr } = await supabase.storage
-        .from("product-images")
-        .createSignedUrl(path, SIGNED_URL_TTL);
-      if (signErr) throw signErr;
-
-      const { error: dbErr } = await supabase
-        .from("product_images")
-        .upsert({ sku: product.sku, image_url: signed.signedUrl }, { onConflict: "sku" });
-      if (dbErr) throw dbErr;
-
+      await saveBlob(file, ext);
       setSavedTick(true);
       onSaved();
       setTimeout(() => setSavedTick(false), 1800);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error subiendo");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const onGenerate = async () => {
+    setBusy("ai");
+    setError(null);
+    setSavedTick(false);
+    try {
+      const res = await fetch("/api/generate-product-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: product.name, description: product.description }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const { b64 } = (await res.json()) as { b64: string };
+      const bin = atob(b64);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      await saveBlob(new Blob([bytes], { type: "image/png" }), "png");
+      setSavedTick(true);
+      onSaved();
+      setTimeout(() => setSavedTick(false), 1800);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error generando");
     } finally {
       setBusy(false);
     }
@@ -243,15 +271,15 @@ function ProductImageRow({
       <div className="flex flex-1 flex-col gap-1.5">
         <div className="line-clamp-2 text-sm font-semibold leading-snug">{product.name}</div>
         <div className="text-[11px] text-muted-foreground">SKU {product.sku}</div>
-        <div className="mt-auto flex items-center gap-2">
+        <div className="mt-auto flex flex-wrap items-center gap-2">
           <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-[var(--color-primary)] px-3 py-1.5 text-[11px] font-semibold text-[var(--color-primary-foreground)] transition hover:opacity-90">
-            {busy ? <Loader2 className="size-3 animate-spin" /> : <Upload className="size-3" />}
+            {busy === "upload" ? <Loader2 className="size-3 animate-spin" /> : <Upload className="size-3" />}
             {currentUrl ? "Reemplazar" : "Subir foto"}
             <input
               type="file"
               accept="image/*"
               className="hidden"
-              disabled={busy}
+              disabled={!!busy}
               onChange={(e) => {
                 const f = e.target.files?.[0];
                 if (f) onFile(f);
@@ -259,6 +287,15 @@ function ProductImageRow({
               }}
             />
           </label>
+          <button
+            type="button"
+            onClick={onGenerate}
+            disabled={!!busy}
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-[var(--color-surface-strong)] px-3 py-1.5 text-[11px] font-semibold transition hover:border-[var(--color-ring)] disabled:opacity-60"
+          >
+            {busy === "ai" ? <Loader2 className="size-3 animate-spin" /> : <Sparkles className="size-3" />}
+            Generar con IA
+          </button>
           {savedTick && (
             <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600">
               <CheckCircle2 className="size-3" /> Guardado

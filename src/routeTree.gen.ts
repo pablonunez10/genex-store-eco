@@ -15,6 +15,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductoIdRouteImport } from './routes/producto.$id'
 import { Route as GraciasOrderNumberRouteImport } from './routes/gracias.$orderNumber'
+import { Route as ApiGenerateProductImageRouteImport } from './routes/api/generate-product-image'
 
 const CheckoutRoute = CheckoutRouteImport.update({
   id: '/checkout',
@@ -46,12 +47,18 @@ const GraciasOrderNumberRoute = GraciasOrderNumberRouteImport.update({
   path: '/gracias/$orderNumber',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGenerateProductImageRoute = ApiGenerateProductImageRouteImport.update({
+  id: '/api/generate-product-image',
+  path: '/api/generate-product-image',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/checkout': typeof CheckoutRoute
+  '/api/generate-product-image': typeof ApiGenerateProductImageRoute
   '/gracias/$orderNumber': typeof GraciasOrderNumberRoute
   '/producto/$id': typeof ProductoIdRoute
 }
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/checkout': typeof CheckoutRoute
+  '/api/generate-product-image': typeof ApiGenerateProductImageRoute
   '/gracias/$orderNumber': typeof GraciasOrderNumberRoute
   '/producto/$id': typeof ProductoIdRoute
 }
@@ -69,6 +77,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/checkout': typeof CheckoutRoute
+  '/api/generate-product-image': typeof ApiGenerateProductImageRoute
   '/gracias/$orderNumber': typeof GraciasOrderNumberRoute
   '/producto/$id': typeof ProductoIdRoute
 }
@@ -79,6 +88,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/checkout'
+    | '/api/generate-product-image'
     | '/gracias/$orderNumber'
     | '/producto/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -87,6 +97,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/checkout'
+    | '/api/generate-product-image'
     | '/gracias/$orderNumber'
     | '/producto/$id'
   id:
@@ -95,6 +106,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/checkout'
+    | '/api/generate-product-image'
     | '/gracias/$orderNumber'
     | '/producto/$id'
   fileRoutesById: FileRoutesById
@@ -104,6 +116,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRoute
   CheckoutRoute: typeof CheckoutRoute
+  ApiGenerateProductImageRoute: typeof ApiGenerateProductImageRoute
   GraciasOrderNumberRoute: typeof GraciasOrderNumberRoute
   ProductoIdRoute: typeof ProductoIdRoute
 }
@@ -152,6 +165,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GraciasOrderNumberRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/generate-product-image': {
+      id: '/api/generate-product-image'
+      path: '/api/generate-product-image'
+      fullPath: '/api/generate-product-image'
+      preLoaderRoute: typeof ApiGenerateProductImageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -160,19 +180,10 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   AuthRoute: AuthRoute,
   CheckoutRoute: CheckoutRoute,
+  ApiGenerateProductImageRoute: ApiGenerateProductImageRoute,
   GraciasOrderNumberRoute: GraciasOrderNumberRoute,
   ProductoIdRoute: ProductoIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
